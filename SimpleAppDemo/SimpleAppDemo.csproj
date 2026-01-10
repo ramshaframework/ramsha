@@ -9,7 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+      <PackageReference Include="Bogus"  />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
+      <ProjectReference Include="..\src\framework\caching\Ramsha.Caching\Ramsha.Caching.csproj" />
       
     <ProjectReference Include="..\src\framework\entity-framework-core\Ramsha.EntityFrameworkCore.SqlServer\Ramsha.EntityFrameworkCore.SqlServer.csproj" />
       

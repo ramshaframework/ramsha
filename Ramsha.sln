@@ -137,6 +137,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramsha.Permissions", "src\m
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramsha.SettingsManagement", "src\modules\settings-management\Ramsha.SettingsManagement\Ramsha.SettingsManagement.csproj", "{6D38D07D-6380-4ED8-AB20-BC3108046DB8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "caching", "caching", "{9517317F-51A1-2A0D-9101-1B742CE94C75}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramsha.Caching", "src\framework\caching\Ramsha.Caching\Ramsha.Caching.csproj", "{B6938007-FBCD-401B-9067-85D825A34326}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -747,6 +751,18 @@ Global
 		{6D38D07D-6380-4ED8-AB20-BC3108046DB8}.Release|x64.Build.0 = Release|Any CPU
 		{6D38D07D-6380-4ED8-AB20-BC3108046DB8}.Release|x86.ActiveCfg = Release|Any CPU
 		{6D38D07D-6380-4ED8-AB20-BC3108046DB8}.Release|x86.Build.0 = Release|Any CPU
+		{B6938007-FBCD-401B-9067-85D825A34326}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6938007-FBCD-401B-9067-85D825A34326}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6938007-FBCD-401B-9067-85D825A34326}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B6938007-FBCD-401B-9067-85D825A34326}.Debug|x64.Build.0 = Debug|Any CPU
+		{B6938007-FBCD-401B-9067-85D825A34326}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B6938007-FBCD-401B-9067-85D825A34326}.Debug|x86.Build.0 = Debug|Any CPU
+		{B6938007-FBCD-401B-9067-85D825A34326}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6938007-FBCD-401B-9067-85D825A34326}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6938007-FBCD-401B-9067-85D825A34326}.Release|x64.ActiveCfg = Release|Any CPU
+		{B6938007-FBCD-401B-9067-85D825A34326}.Release|x64.Build.0 = Release|Any CPU
+		{B6938007-FBCD-401B-9067-85D825A34326}.Release|x86.ActiveCfg = Release|Any CPU
+		{B6938007-FBCD-401B-9067-85D825A34326}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -814,5 +830,7 @@ Global
 		{8D93A0F6-42DE-4768-9864-566809DAC1B8} = {6EE2CD8D-C202-701D-0106-19DABBDFA130}
 		{370BD64A-1197-45C6-89A8-22FA92856F4C} = {838FFFB0-8371-944A-DB78-25759711E3A7}
 		{6D38D07D-6380-4ED8-AB20-BC3108046DB8} = {B6EAB335-21D8-972E-2001-BE8A6D353530}
+		{9517317F-51A1-2A0D-9101-1B742CE94C75} = {E0AD1809-C64F-3D39-45E0-E424261CE16D}
+		{B6938007-FBCD-401B-9067-85D825A34326} = {9517317F-51A1-2A0D-9101-1B742CE94C75}
 	EndGlobalSection
 EndGlobal

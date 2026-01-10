@@ -1,14 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Ramsha;
-using Ramsha.EntityFrameworkCore;
-using Ramsha.EntityFrameworkCore.SqlServer;
-using Ramsha.Identity;
-using Ramsha.Identity.Persistence;
+using Ramsha.Caching;
+using Ramsha.Identity.Domain;
+using SimpleAppDemo;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-//var ramsha = builder.AddRamshaApp<AppModule>();
 
 var ramsha = builder.Services.AddRamsha(ramsha =>
 {
@@ -17,52 +13,70 @@ var ramsha = builder.Services.AddRamsha(ramsha =>
     .AddAccountModule()
     .AddSettingsManagementModule()
     .AddPermissionsModule()
-    .AddEFSqlServerModule();
-
+    .AddEFSqlServerModule()
+    .AddCachingModule();
 });
 
 builder.Services.AddRamshaDbContext<AppDbContext>();
 
 var app = builder.Build();
 
-app.UseRamsha();
 
-app.MapGet("modules", () =>
+app.MapPost("users", async (int count, RamshaIdentityUserManager<RamshaIdentityUser> userManager) =>
 {
-    return ModuleLogHelper.BuildModuleTreeDiagram(ramsha.Modules);
+    int succeededCount = 0;
+    var users = DataGenerator.GenerateUserList(count, true);
+    foreach (var user in users)
+    {
+        var result = await userManager.CreateAsync(user, "qawsed");
+        if (result.Succeeded)
+        {
+            succeededCount += 1;
+        }
+    }
 
-    // return JsonSerializer.Serialize(ramsha.Modules.Select(x => new
-    // {
-    //     module = x.Type.Name,
-    //     dependencies = x.Dependencies.Select(x => x.Type.Name)
-    // }).ToList(), new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles });
-
+    return Results.Ok(succeededCount);
 });
+
+
+app.MapGet("users", async (IIdentityUserRepository<RamshaIdentityUser, Guid> userRepository) =>
+{
+    return await GetUsers(userRepository);
+});
+
+
+app.MapGet("cached-users", async (IRamshaCache cache, IIdentityUserRepository<RamshaIdentityUser, Guid> userRepository) =>
+{
+    return await cache.GetOrCreateAsync("users",
+    async (ct) => await GetUsers(userRepository)
+,
+    new RamshaCacheEntryOptions
+    {
+        Expiration = TimeSpan.FromMinutes(2),
+        LocalCacheExpiration = TimeSpan.FromMinutes(2),
+    });
+});
+
+app.MapDelete("remove-users-cache", async (IRamshaCache cache) =>
+{
+    await cache.RemoveAsync("users");
+});
+
+app.UseRamsha();
 
 app.Run();
 
-public class AppDbContext(DbContextOptions<AppDbContext> options)
-: RamshaEFDbContext<AppDbContext>(options)
-{
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-        modelBuilder.ConfigureIdentity();
-    }
-}
 
-public class AppModule : RamshaModule
-{
-    public override void Register(RegisterContext context)
-    {
-        base.Register(context);
-        context.DependsOn<IdentityModule>();
-        context.DependsOn<EntityFrameworkCoreSqlServerModule>();
-    }
 
-    public override void BuildServices(BuildServicesContext context)
-    {
-        base.BuildServices(context);
-        context.Services.AddRamshaDbContext<AppDbContext>();
-    }
+static async Task<List<RamshaIdentityUser>> GetUsers(IIdentityUserRepository<RamshaIdentityUser, Guid> repository)
+{
+    return await repository.GetListAsync(
+        x => x.UserName == x.UserName
+         && x.EmailConfirmed == false
+         && x.PasswordHash != null
+          && !x.UserName.StartsWith("0076555359")
+         && !x.NormalizedUserName.StartsWith("0076555359")
+          && !x.NormalizedEmail.StartsWith("0076555359")
+          && !x.Email.StartsWith("0076555359"),
+        [x => x.Roles, x => x.Claims, c => c.Logins]);
 }
