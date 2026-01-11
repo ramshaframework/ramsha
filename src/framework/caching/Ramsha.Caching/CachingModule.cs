@@ -20,6 +20,7 @@ public class CachingModule : RamshaModule
                 Expiration = ramshaOptions.DefaultEntryOptions.Expiration,
                 LocalCacheExpiration = ramshaOptions.DefaultEntryOptions.LocalCacheExpiration
             };
+        
         });
 
         context.Services.AddSingleton<IRamshaCache, RamshaCache>();

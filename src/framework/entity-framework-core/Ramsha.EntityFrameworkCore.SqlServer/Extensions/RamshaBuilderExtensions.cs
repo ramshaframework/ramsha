@@ -6,7 +6,7 @@ namespace Ramsha;
 
 public static class RamshaBuilderExtensions
 {
-    public static RamshaBuilder AddEFSqlServerModule(this RamshaBuilder ramsha)
+    public static RamshaBuilder AddEFSqlServer(this RamshaBuilder ramsha)
     {
         ramsha.AddModule<EntityFrameworkCoreSqlServerModule>();
         return ramsha;

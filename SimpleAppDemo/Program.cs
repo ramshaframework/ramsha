@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Ramsha;
 using Ramsha.Caching;
@@ -9,12 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 var ramsha = builder.Services.AddRamsha(ramsha =>
 {
     ramsha
-    .AddIdentityModule()
-    .AddAccountModule()
-    .AddSettingsManagementModule()
-    .AddPermissionsModule()
-    .AddEFSqlServerModule()
-    .AddCachingModule();
+    .AddIdentity()
+    .AddAccount()
+    .AddSettingsManagement()
+    .AddPermissions()
+    .AddEFSqlServer()
+    .AddRedisCaching();
 });
 
 builder.Services.AddRamshaDbContext<AppDbContext>();
@@ -22,7 +23,7 @@ builder.Services.AddRamshaDbContext<AppDbContext>();
 var app = builder.Build();
 
 
-app.MapPost("users", async (int count, RamshaIdentityUserManager<RamshaIdentityUser> userManager) =>
+app.MapPost("users", async ([FromServices] RamshaIdentityUserManager<RamshaIdentityUser> userManager, int count) =>
 {
     int succeededCount = 0;
     var users = DataGenerator.GenerateUserList(count, true);
@@ -39,13 +40,13 @@ app.MapPost("users", async (int count, RamshaIdentityUserManager<RamshaIdentityU
 });
 
 
-app.MapGet("users", async (IIdentityUserRepository<RamshaIdentityUser, Guid> userRepository) =>
+app.MapGet("users", async ([FromServices] IIdentityUserRepository<RamshaIdentityUser, Guid> userRepository) =>
 {
     return await GetUsers(userRepository);
 });
 
 
-app.MapGet("cached-users", async (IRamshaCache cache, IIdentityUserRepository<RamshaIdentityUser, Guid> userRepository) =>
+app.MapGet("cached-users", async ([FromServices] IRamshaCache cache, [FromServices] IIdentityUserRepository<RamshaIdentityUser, Guid> userRepository) =>
 {
     return await cache.GetOrCreateAsync("users",
     async (ct) => await GetUsers(userRepository)
@@ -57,8 +58,13 @@ app.MapGet("cached-users", async (IRamshaCache cache, IIdentityUserRepository<Ra
     });
 });
 
-app.MapDelete("remove-users-cache", async (IRamshaCache cache) =>
+app.MapDelete("remove-users-cache", async ([FromServices] IRamshaCache cache) =>
 {
+    await cache.SetAsync("gg", "gg value", new RamshaCacheEntryOptions
+    {
+        Expiration = TimeSpan.FromMinutes(2),
+        LocalCacheExpiration = TimeSpan.FromMinutes(2),
+    });
     await cache.RemoveAsync("users");
 });
 

@@ -6,7 +6,7 @@ namespace Ramsha;
 
 public static class RamshaBuilderExtensions
 {
-    public static RamshaBuilder AddIdentityModule(this RamshaBuilder ramsha)
+    public static RamshaBuilder AddIdentity(this RamshaBuilder ramsha)
     {
         ramsha.AddModule<IdentityModule>();
         return ramsha;

@@ -6,7 +6,7 @@ namespace Ramsha;
 
 public static class RamshaBuilderExtensions
 {
-    public static RamshaBuilder AddEntityFrameworkCoreModule(this RamshaBuilder ramsha)
+    public static RamshaBuilder AddEntityFrameworkCore(this RamshaBuilder ramsha)
     {
         ramsha.AddModule<EntityFrameworkCoreModule>();
         return ramsha;
