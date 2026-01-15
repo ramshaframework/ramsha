@@ -93,7 +93,7 @@ public static class ServiceCollectionExtensions
 
         services.TryAddTransient(sp => sp.CreateInstanceWithPropInjection<TDbContext>());
 
-
+        services.AddTransient<TDbContextInterface>(sp => sp.GetRequiredService<TDbContext>());
         services.AddTransient<IRamshaEFDbContext>(sp => sp.GetRequiredService<TDbContext>());
         services.AddTransient<IEFDbContext>(sp => sp.GetRequiredService<TDbContext>());
 

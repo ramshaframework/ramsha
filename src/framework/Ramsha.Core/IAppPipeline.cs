@@ -4,26 +4,26 @@ using System.Threading;
 
 namespace Ramsha
 {
-    public interface IAppPipeline<TApp>
+    public interface IRamshaAppPipeline<TApp>
     {
-        IAppPipeline<TApp> Replace(string targetName, Action<TApp> newConfigure, PipelineEntryOptions? options = null);
-        IAppPipeline<TApp> Replace(string targetName, string newName, Action<TApp> newConfigure, PipelineEntryOptions? options = null);
-        IAppPipeline<TApp> Use(string name, Action<TApp> configure, PipelineEntryOptions? options = null, Func<bool>? condition = null);
-        IAppPipeline<TApp> UseBefore(string targetName, string name, Action<TApp> configure, PipelineEntryOptions? options = null, Func<bool>? condition = null);
-        IAppPipeline<TApp> UseAfter(string targetName, string name, Action<TApp> configure, PipelineEntryOptions? options = null, Func<bool>? condition = null);
+        IRamshaAppPipeline<TApp> Replace(string targetName, Action<TApp> newConfigure, RamshaPipelineEntryOptions? options = null);
+        IRamshaAppPipeline<TApp> Replace(string targetName, string newName, Action<TApp> newConfigure, RamshaPipelineEntryOptions? options = null);
+        IRamshaAppPipeline<TApp> Use(string name, Action<TApp> configure, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null);
+        IRamshaAppPipeline<TApp> UseBefore(string targetName, string name, Action<TApp> configure, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null);
+        IRamshaAppPipeline<TApp> UseAfter(string targetName, string name, Action<TApp> configure, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null);
 
-        IAppPipeline<TApp> Use(Action<TApp> configure, PipelineEntryOptions? options = null, Func<bool>? condition = null);
-        IAppPipeline<TApp> UseBefore(string targetName, Action<TApp> configure, PipelineEntryOptions? options = null, Func<bool>? condition = null);
-        IAppPipeline<TApp> UseAfter(string targetName, Action<TApp> configure, PipelineEntryOptions? options = null, Func<bool>? condition = null);
+        IRamshaAppPipeline<TApp> Use(Action<TApp> configure, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null);
+        IRamshaAppPipeline<TApp> UseBefore(string targetName, Action<TApp> configure, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null);
+        IRamshaAppPipeline<TApp> UseAfter(string targetName, Action<TApp> configure, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null);
 
-        IAppPipeline<TApp> MoveBefore(string entryName, string targetName);
-        IAppPipeline<TApp> MoveAfter(string entryName, string targetName);
+        IRamshaAppPipeline<TApp> MoveBefore(string entryName, string targetName);
+        IRamshaAppPipeline<TApp> MoveAfter(string entryName, string targetName);
         bool Remove(string name);
         void Apply(TApp app);
         IReadOnlyList<PipelineEntry<TApp>> GetEntries();
     }
 
-    public class AppPipeline<TApp> : IAppPipeline<TApp>
+    public class RamshaAppPipeline<TApp> : IRamshaAppPipeline<TApp>
     {
         private bool _applied = false;
         private readonly List<PipelineEntry<TApp>> _entries = new();
@@ -33,12 +33,12 @@ namespace Ramsha
 
         private static string GetAnonymousName() => $"__anonymous_{Interlocked.Increment(ref _anonymousIndex)}";
 
-        public IAppPipeline<TApp> Replace(string targetName, Action<TApp> newConfigure, PipelineEntryOptions? options = null)
+        public IRamshaAppPipeline<TApp> Replace(string targetName, Action<TApp> newConfigure, RamshaPipelineEntryOptions? options = null)
         {
             return Replace(targetName, targetName, newConfigure, options);
         }
 
-        public IAppPipeline<TApp> Replace(string targetName, string newName, Action<TApp> newConfigure, PipelineEntryOptions? options = null)
+        public IRamshaAppPipeline<TApp> Replace(string targetName, string newName, Action<TApp> newConfigure, RamshaPipelineEntryOptions? options = null)
         {
             if (string.IsNullOrEmpty(targetName))
                 throw new ArgumentNullException(nameof(targetName));
@@ -60,13 +60,13 @@ namespace Ramsha
 
         #region Use Overloads
 
-        public IAppPipeline<TApp> Use(string name, Action<TApp> configure, PipelineEntryOptions? options = null, Func<bool>? condition = null)
+        public IRamshaAppPipeline<TApp> Use(string name, Action<TApp> configure, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
             return AddEntry(configure, name, options, condition);
         }
 
-        public IAppPipeline<TApp> Use(Action<TApp> configure, PipelineEntryOptions? options = null, Func<bool>? condition = null)
+        public IRamshaAppPipeline<TApp> Use(Action<TApp> configure, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null)
         {
             return AddEntry(configure, GetAnonymousName(), options, condition);
         }
@@ -75,13 +75,13 @@ namespace Ramsha
 
         #region UseBefore Overloads
 
-        public IAppPipeline<TApp> UseBefore(string targetName, string name, Action<TApp> configure, PipelineEntryOptions? options = null, Func<bool>? condition = null)
+        public IRamshaAppPipeline<TApp> UseBefore(string targetName, string name, Action<TApp> configure, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null)
         {
             if (string.IsNullOrEmpty(targetName)) throw new ArgumentNullException(nameof(targetName));
             return InsertBefore(targetName, configure, name, options, condition);
         }
 
-        public IAppPipeline<TApp> UseBefore(string targetName, Action<TApp> configure, PipelineEntryOptions? options = null, Func<bool>? condition = null)
+        public IRamshaAppPipeline<TApp> UseBefore(string targetName, Action<TApp> configure, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null)
         {
             return InsertBefore(targetName, configure, GetAnonymousName(), options, condition);
         }
@@ -90,13 +90,13 @@ namespace Ramsha
 
         #region UseAfter Overloads
 
-        public IAppPipeline<TApp> UseAfter(string targetName, string name, Action<TApp> configure, PipelineEntryOptions? options = null, Func<bool>? condition = null)
+        public IRamshaAppPipeline<TApp> UseAfter(string targetName, string name, Action<TApp> configure, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null)
         {
             if (string.IsNullOrEmpty(targetName)) throw new ArgumentNullException(nameof(targetName));
             return InsertAfter(targetName, configure, name, options, condition);
         }
 
-        public IAppPipeline<TApp> UseAfter(string targetName, Action<TApp> configure, PipelineEntryOptions? options = null, Func<bool>? condition = null)
+        public IRamshaAppPipeline<TApp> UseAfter(string targetName, Action<TApp> configure, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null)
         {
             return InsertAfter(targetName, configure, GetAnonymousName(), options, condition);
         }
@@ -105,7 +105,7 @@ namespace Ramsha
 
         #region Move & Remove
 
-        public IAppPipeline<TApp> MoveBefore(string entryName, string targetName)
+        public IRamshaAppPipeline<TApp> MoveBefore(string entryName, string targetName)
         {
             var index = _entries.FindIndex(e => e.Name == entryName);
             var targetIndex = _entries.FindIndex(e => e.Name == targetName);
@@ -122,7 +122,7 @@ namespace Ramsha
             return this;
         }
 
-        public IAppPipeline<TApp> MoveAfter(string entryName, string targetName)
+        public IRamshaAppPipeline<TApp> MoveAfter(string entryName, string targetName)
         {
             var index = _entries.FindIndex(e => e.Name == entryName);
             var targetIndex = _entries.FindIndex(e => e.Name == targetName);
@@ -190,14 +190,14 @@ namespace Ramsha
 
         #region Internal Helpers
 
-        private IAppPipeline<TApp> AddEntry(Action<TApp> configure, string name, PipelineEntryOptions? options = null, Func<bool>? condition = null)
+        private IRamshaAppPipeline<TApp> AddEntry(Action<TApp> configure, string name, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null)
         {
             var entry = new PipelineEntry<TApp>(configure, name, options, condition);
             _entries.Add(entry);
             return this;
         }
 
-        private IAppPipeline<TApp> InsertBefore(string targetName, Action<TApp> configure, string name, PipelineEntryOptions? options = null, Func<bool>? condition = null)
+        private IRamshaAppPipeline<TApp> InsertBefore(string targetName, Action<TApp> configure, string name, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null)
         {
             var index = _entries.FindIndex(e => e.Name == targetName);
             var entry = new PipelineEntry<TApp>(configure, name, options, condition);
@@ -206,7 +206,7 @@ namespace Ramsha
             return this;
         }
 
-        private IAppPipeline<TApp> InsertAfter(string targetName, Action<TApp> configure, string name, PipelineEntryOptions? options = null, Func<bool>? condition = null)
+        private IRamshaAppPipeline<TApp> InsertAfter(string targetName, Action<TApp> configure, string name, RamshaPipelineEntryOptions? options = null, Func<bool>? condition = null)
         {
             var index = _entries.FindIndex(e => e.Name == targetName);
             var entry = new PipelineEntry<TApp>(configure, name, options, condition);
@@ -229,25 +229,25 @@ namespace Ramsha
         public Action<TApp> Action { get; }
         public string Name { get; }
 
-        public PipelineEntryOptions Options { get; }
+        public RamshaPipelineEntryOptions Options { get; }
 
         public PipelineEntry(
             Action<TApp> action,
             string name,
-            PipelineEntryOptions? options = null,
+            RamshaPipelineEntryOptions? options = null,
             Func<bool>? condition = null)
         {
             Action = action ?? throw new ArgumentNullException(nameof(action));
             Name = string.IsNullOrEmpty(name) ? $"__unnamed_{Interlocked.Increment(ref _globalIndex)}" : name;
             InsertionIndex = Interlocked.Increment(ref _globalIndex);
-            Options = options ??= new PipelineEntryOptions();
+            Options = options ??= new RamshaPipelineEntryOptions();
             Condition = condition ?? (() => true);
         }
 
         public override string ToString() => $"PipelineEntry(Name={Name}, Index={InsertionIndex})";
     }
 
-    public class PipelineEntryOptions
+    public class RamshaPipelineEntryOptions
     {
         public bool CanMove { get; set; } = true;
         public bool CanReplace { get; set; } = true;

@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Ramsha;
 using Ramsha.Caching;
 using Ramsha.Identity.Domain;
+using Ramsha.JwtAuth.AspNetCore;
 using SimpleAppDemo;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,10 +16,20 @@ var ramsha = builder.Services.AddRamsha(ramsha =>
     .AddSettingsManagement()
     .AddPermissions()
     .AddEFSqlServer()
-    .AddRedisCaching();
+    .AddRedisCaching()
+    .AddJwtAuth();
+
+    ramsha.PrepareOptions<RamshaJwTValidationOptions>(options =>
+   {
+       options.SecurityKey = "C1CF4B7DC4C4175B6618DE4F55CA4AAA";
+       options.Audience = "SimpleDemoAppAudience";
+       options.Issuer = "SimpleDemoAppIssuer";
+   });
+
 });
 
 builder.Services.AddRamshaDbContext<AppDbContext>();
+
 
 var app = builder.Build();
 
@@ -43,7 +54,7 @@ app.MapPost("users", async ([FromServices] RamshaIdentityUserManager<RamshaIdent
 app.MapGet("users", async ([FromServices] IIdentityUserRepository<RamshaIdentityUser, Guid> userRepository) =>
 {
     return await GetUsers(userRepository);
-});
+}).RequireAuthorization();
 
 
 app.MapGet("cached-users", async ([FromServices] IRamshaCache cache, [FromServices] IIdentityUserRepository<RamshaIdentityUser, Guid> userRepository) =>

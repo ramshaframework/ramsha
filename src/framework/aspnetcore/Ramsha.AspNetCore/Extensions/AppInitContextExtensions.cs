@@ -12,9 +12,9 @@ namespace Ramsha.AspNetCore;
 
 public static class AppInitContextExtensions
 {
-    public static IAppPipeline<IApplicationBuilder> GetAppPipelineBuilder(this InitContext context)
+    public static IRamshaAppPipeline<IApplicationBuilder> GetAppPipelineBuilder(this InitContext context)
     {
-        return context.ServiceProvider.GetRequiredService<IAppPipeline<IApplicationBuilder>>();
+        return context.ServiceProvider.GetRequiredService<IRamshaAppPipeline<IApplicationBuilder>>();
     }
 
     public static IWebHostEnvironment GetEnvironment(this InitContext context)
@@ -32,5 +32,5 @@ public static class AppInitContextExtensions
     {
         return context.ServiceProvider.GetRequiredService<IOptions<T>>();
     }
- 
+
 }

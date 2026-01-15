@@ -10,7 +10,7 @@ public record UnauthenticatedError(
     IEnumerable<NamedError>? Errors = null,
     RamshaErrorContext? Context = null
 ) : RamshaErrorResult(
-    RamshaResultStatus.NotFound,
+    RamshaResultStatus.Unauthenticated,
     Code,
     Message,
     Errors,

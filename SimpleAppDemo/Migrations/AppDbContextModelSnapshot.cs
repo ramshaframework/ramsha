@@ -224,6 +224,36 @@ namespace SimpleAppDemo.Migrations
                     b.ToTable("RamshaIdentityUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Ramsha.JwtAuth.Domain.RamshaRefreshToken", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RevokedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RamshaRefreshTokens", (string)null);
+                });
+
             modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Ramsha.Identity.Domain.RamshaIdentityRole", null)

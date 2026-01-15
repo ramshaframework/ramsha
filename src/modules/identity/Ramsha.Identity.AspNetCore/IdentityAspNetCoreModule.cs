@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Ramsha.AspNetCore;
 using Ramsha.Identity.Domain;
 
 namespace Ramsha.Identity.AspNetCore;
@@ -10,7 +11,8 @@ public class IdentityAspNetCoreModule : RamshaModule
     {
         base.Register(context);
         context
-        .DependsOn<IdentityDomainModule>();
+        .DependsOn<IdentityDomainModule>()
+        .DependsOn<AspNetCoreModule>();
     }
 
     public override void Prepare(PrepareContext context)

@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Ramsha;
+using Ramsha.AspNetCore;
 
 namespace Ramsha.AspNetCore
 {
@@ -14,7 +15,7 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class ApplicationBuilderExtensions
     {
-        public static void UseRamsha(this IApplicationBuilder app)
+        public static void UseRamsha(this IApplicationBuilder app, bool useRamshaPipeline = true)
         {
             var engine = app.ApplicationServices.GetRequiredService<IExternalRamshaEngine>();
             var applicationLifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
@@ -33,15 +34,31 @@ namespace Microsoft.AspNetCore.Builder
             .GetAwaiter()
             .GetResult();
 
-            var pipeline = app.ApplicationServices.GetService<IAppPipeline<IApplicationBuilder>>();
-            if (pipeline is not null)
+
+            if (useRamshaPipeline)
             {
-                pipeline.Apply(app);
+                var pipeline = app.ApplicationServices.GetService<IRamshaAppPipeline<IApplicationBuilder>>();
+                if (pipeline is not null)
+                {
+                    var contributors = app.ApplicationServices.GetServices<IRamshaPipelineContributor>();
+
+                    foreach (var contributor in contributors)
+                    {
+
+                        using var scope = app.ApplicationServices.CreateScope();
+                        var context = new RamshaPipelineContext(pipeline, scope.ServiceProvider);
+
+                        contributor.ConfigureAsync(context)
+                        .GetAwaiter()
+                       .GetResult();
+                    }
+                    pipeline.Apply(app);
+                }
             }
         }
 
         public static async Task UseRamshaAsync(
-          this IApplicationBuilder app)
+          this IApplicationBuilder app, bool useRamshaPipeline = true)
         {
             var engine = app.ApplicationServices.GetRequiredService<IExternalRamshaEngine>();
             var applicationLifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
@@ -58,10 +75,21 @@ namespace Microsoft.AspNetCore.Builder
 
             await engine.Initialize(app.ApplicationServices);
 
-            var pipeline = app.ApplicationServices.GetService<IAppPipeline<IApplicationBuilder>>();
-            if (pipeline is not null)
+            if (useRamshaPipeline)
             {
-                pipeline.Apply(app);
+                var pipeline = app.ApplicationServices.GetService<IRamshaAppPipeline<IApplicationBuilder>>();
+                if (pipeline is not null)
+                {
+                    var contributors = app.ApplicationServices.GetServices<IRamshaPipelineContributor>();
+
+                    foreach (var contributor in contributors)
+                    {
+                        using var scope = app.ApplicationServices.CreateScope();
+                        var context = new RamshaPipelineContext(pipeline, scope.ServiceProvider);
+                        await contributor.ConfigureAsync(context);
+                    }
+                    pipeline.Apply(app);
+                }
             }
         }
 

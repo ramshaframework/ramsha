@@ -15,9 +15,11 @@
       <ProjectReference Include="..\src\framework\caching\Ramsha.Caching\Ramsha.Caching.csproj" />
       
     <ProjectReference Include="..\src\framework\entity-framework-core\Ramsha.EntityFrameworkCore.SqlServer\Ramsha.EntityFrameworkCore.SqlServer.csproj" />
+    
       
     <ProjectReference Include="..\src\modules\account\Ramsha.Account\Ramsha.Account.csproj" />
     <ProjectReference Include="..\src\modules\identity\Ramsha.Identity\Ramsha.Identity.csproj" />
+    <ProjectReference Include="..\src\modules\jwt-auth\Ramsha.JwtAuth\Ramsha.JwtAuth.csproj" />
     <ProjectReference Include="..\src\modules\permissions\Ramsha.Permissions\Ramsha.Permissions.csproj" />
     <ProjectReference Include="..\src\modules\settings-management\Ramsha.SettingsManagement\Ramsha.SettingsManagement.csproj" />
 

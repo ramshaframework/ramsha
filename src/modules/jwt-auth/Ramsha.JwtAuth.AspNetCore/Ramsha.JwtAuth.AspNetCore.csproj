@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\framework\aspnetcore\Ramsha.AspNetCore.Authentication.Jwt\Ramsha.AspNetCore.Authentication.Jwt.csproj" />
+    <ProjectReference Include="..\..\identity\Ramsha.Identity.AspNetCore\Ramsha.Identity.AspNetCore.csproj" />
+    <ProjectReference Include="..\Ramsha.JwtAuth.Domain\Ramsha.JwtAuth.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
