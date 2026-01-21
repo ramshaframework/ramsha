@@ -9,7 +9,7 @@ public static class RamshaTypeReplacementOptionsExtensions
     public static (Type InterfaceType, Type ImplementationType) GetAccountServiceOrBase(this RamshaTypeReplacementOptions options)
     {
         var baseService = GetBaseAccountServiceType(options);
-        return (options.GetOrBase(baseService.InterfaceType), options.GetOrBase(baseService.ImplementationType));
+        return (options.GetOrSelf(baseService.InterfaceType), options.GetOrSelf(baseService.ImplementationType));
     }
 
 
@@ -17,8 +17,8 @@ public static class RamshaTypeReplacementOptionsExtensions
     where TService : IRamshaAccountServiceBase
     {
         var service = GetBaseAccountServiceType(options);
-        options.ForceReplace(service.InterfaceType, typeof(TService));
-        options.ForceReplace(service.ImplementationType, typeof(TService));
+        options.ReplaceBase(service.InterfaceType, typeof(TService));
+        options.ReplaceBase(service.ImplementationType, typeof(TService));
 
         return options;
     }
@@ -38,12 +38,12 @@ public static class RamshaTypeReplacementOptionsExtensions
             entitiesTypes.UserClaimType,
             entitiesTypes.UserLoginType,
             entitiesTypes.UserTokenType,
-           options.GetOrBase<RamshaRegisterDto>()
+           options.GetOrSelf<RamshaRegisterDto>()
 
         );
         var interfaceType = typeof(IRamshaAccountService<>)
         .MakeGenericType(
-           options.GetOrBase<RamshaRegisterDto>()
+           options.GetOrSelf<RamshaRegisterDto>()
             );
 
         return (interfaceType, implementationType);

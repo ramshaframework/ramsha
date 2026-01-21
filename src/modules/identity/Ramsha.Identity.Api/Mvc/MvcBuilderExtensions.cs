@@ -13,8 +13,8 @@ public static class MvcBuilderExtensions
         var keyType = typesOptions.GetIdentityIdOrBase();
 
         builder.AddGenericControllers(
-            typeof(RamshaIdentityRoleController<,,,>).MakeGenericType(typesOptions.GetOrBase<RamshaIdentityRoleDto>(), typesOptions.GetOrBase<CreateRamshaIdentityRoleDto>(), typesOptions.GetOrBase<UpdateRamshaIdentityRoleDto>(), keyType),
-            typeof(RamshaIdentityUserController<,,,>).MakeGenericType(typesOptions.GetOrBase<RamshaIdentityUserDto>(), typesOptions.GetOrBase<CreateRamshaIdentityUserDto>(), typesOptions.GetOrBase<UpdateRamshaIdentityUserDto>(), keyType)
+            typeof(RamshaIdentityRoleController<,,,>).MakeGenericType(typesOptions.GetOrSelf<RamshaIdentityRoleDto>(), typesOptions.GetOrSelf<CreateRamshaIdentityRoleDto>(), typesOptions.GetOrSelf<UpdateRamshaIdentityRoleDto>(), keyType),
+            typeof(RamshaIdentityUserController<,,,>).MakeGenericType(typesOptions.GetOrSelf<RamshaIdentityUserDto>(), typesOptions.GetOrSelf<CreateRamshaIdentityUserDto>(), typesOptions.GetOrSelf<UpdateRamshaIdentityUserDto>(), keyType)
             );
     }
 }

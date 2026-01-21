@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -22,13 +18,15 @@ public static class ServiceCollectionExtensions
         var ramshaUserManagerType = typeof(RamshaIdentityUserManager<,,,,,,,>).MakeGenericType(entitiesTypes.UserType, entitiesTypes.RoleType, keyType, entitiesTypes.UserRoleType, entitiesTypes.RoleClaimType, entitiesTypes.UserClaimType, entitiesTypes.UserLoginType, entitiesTypes.UserTokenType);
 
         services.TryAddScoped(ramshaUserManagerType);
-        services.TryAddScoped(typeof(RamshaIdentityUserManager<>).MakeGenericType(entitiesTypes.UserType));
+        services.TryAddScoped(typeof(RamshaIdentityUserManager<>));
+        services.TryAddScoped(typeof(RamshaIdentityUserManager<,>));
+
         services.TryAddScoped(typeof(UserManager<>).MakeGenericType(entitiesTypes.UserType), provider => provider.GetService(ramshaUserManagerType));
 
         // register roleManager
         var ramshaRoleManagerType = typeof(RamshaIdentityRoleManager<,,,>).MakeGenericType(entitiesTypes.RoleType, keyType, entitiesTypes.UserRoleType, entitiesTypes.RoleClaimType);
         services.TryAddScoped(ramshaRoleManagerType);
-        services.TryAddScoped(typeof(RamshaIdentityRoleManager<>).MakeGenericType(entitiesTypes.RoleType));
+        services.TryAddScoped(typeof(RamshaIdentityRoleManager<>));
         services.TryAddScoped(typeof(RoleManager<>).MakeGenericType(entitiesTypes.RoleType), provider => provider.GetService(ramshaRoleManagerType));
 
         return services;

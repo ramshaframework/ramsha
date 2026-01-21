@@ -21,11 +21,6 @@ public class IdentityDomainModule : RamshaModule
         base.Prepare(context);
 
         context.PrepareOptions<RamshaIdentityOptions>(options => { });
-        context.PrepareOptions<RamshaTypeReplacementOptions>(options =>
-        {
-            // options.ReplaceUser<RamshaIdentityUser>();
-            // options.ReplaceRole<RamshaIdentityRole>();
-        });
     }
 
 

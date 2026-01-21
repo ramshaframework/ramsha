@@ -6,9 +6,18 @@ using Ramsha.Identity.Domain;
 namespace Ramsha.Account.Application;
 
 public class RamshaAccountService<TUser, TRegisterDto>(RamshaIdentityUserManager<TUser> userManager)
-: RamshaAccountService<TUser, RamshaIdentityRole, Guid, RamshaIdentityUserRole<Guid>, RamshaIdentityRoleClaim<Guid>, RamshaIdentityUserClaim<Guid>, RamshaIdentityUserLogin<Guid>, RamshaIdentityUserToken<Guid>, TRegisterDto>
+: RamshaAccountService<TUser, Guid, TRegisterDto>
 (userManager)
 where TUser : RamshaIdentityUser, new()
+where TRegisterDto : RamshaRegisterDto, new()
+{
+
+}
+public class RamshaAccountService<TUser, TId, TRegisterDto>(RamshaIdentityUserManager<TUser, TId> userManager)
+: RamshaAccountService<TUser, RamshaIdentityRole<TId>, TId, RamshaIdentityUserRole<TId>, RamshaIdentityRoleClaim<TId>, RamshaIdentityUserClaim<TId>, RamshaIdentityUserLogin<TId>, RamshaIdentityUserToken<TId>, TRegisterDto>
+(userManager)
+where TId : IEquatable<TId>
+where TUser : RamshaIdentityUser<TId>, new()
 where TRegisterDto : RamshaRegisterDto, new()
 {
 

@@ -6,16 +6,16 @@ public static class RamshaTypeReplacementOptionsExtensions
 {
     public static Type GetIdentityIdOrBase(this RamshaTypeReplacementOptions options)
     {
-        return options.GetOrBase(GetIdentityBaseIdType());
+        return options.GetOrNull(typeof(RamshaIdentityIdTypeTypedKey)) ?? GetIdentityBaseIdType();
     }
 
-    public static RamshaTypeReplacementOptions? ReplaceIdentityId<TId>(this RamshaTypeReplacementOptions options)
+    internal static RamshaTypeReplacementOptions? ReplaceIdentityId<TId>(this RamshaTypeReplacementOptions options)
     where TId : IEquatable<TId>
     {
-        return options.ForceReplace(GetIdentityBaseIdType(), typeof(TId));
+        return options.Replace(typeof(RamshaIdentityIdTypeTypedKey), typeof(TId));
     }
 
-    public static RamshaTypeReplacementOptions? ReplaceIdentityId(this RamshaTypeReplacementOptions options, Type idType)
+    internal static RamshaTypeReplacementOptions? ReplaceIdentityId(this RamshaTypeReplacementOptions options, Type idType)
     {
         if (idType == null)
             throw new ArgumentNullException(nameof(idType));
@@ -29,7 +29,7 @@ public static class RamshaTypeReplacementOptionsExtensions
                 $"IEquatable<{idType.Name}>.");
         }
 
-        return options.ForceReplace(GetIdentityBaseIdType(), idType);
+        return options.Replace(typeof(RamshaIdentityIdTypeTypedKey), idType);
     }
 
     private static Type GetIdentityBaseIdType()
@@ -37,3 +37,6 @@ public static class RamshaTypeReplacementOptionsExtensions
         return typeof(Guid);
     }
 }
+
+
+internal class RamshaIdentityIdTypeTypedKey : IRamshaTypedKey { };

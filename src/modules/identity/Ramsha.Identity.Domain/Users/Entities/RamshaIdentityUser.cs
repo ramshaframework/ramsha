@@ -224,6 +224,10 @@ where TUserToken : RamshaIdentityUserToken<TId>, new()
 public abstract class RamshaIdentityUserBase<TId> : AggregateRoot<TId>, IAudit, ISoftDelete
 where TId : IEquatable<TId>
 {
+    public RamshaIdentityUserBase()
+    {
+
+    }
     public virtual string UserName { get; set; }
     public virtual string? Email { get; set; }
     public virtual bool EmailConfirmed { get; set; }

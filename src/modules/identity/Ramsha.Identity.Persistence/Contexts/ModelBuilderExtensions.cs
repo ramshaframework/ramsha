@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
 using Ramsha.Identity.Domain;
 
@@ -16,7 +13,6 @@ public static class ModelBuilderExtensions
 
     public static ModelBuilder ConfigureIdentity<TUser>(this ModelBuilder modelBuilder)
     where TUser : RamshaIdentityUser, new()
-
     {
         return modelBuilder.ConfigureIdentity<TUser, RamshaIdentityRole<Guid>, Guid, RamshaIdentityUserRole<Guid>, RamshaIdentityRoleClaim<Guid>, RamshaIdentityUserClaim<Guid>, RamshaIdentityUserLogin<Guid>, RamshaIdentityUserToken<Guid>>();
     }

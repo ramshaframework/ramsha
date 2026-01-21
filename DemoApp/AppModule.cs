@@ -65,10 +65,10 @@ public class AppModule : RamshaModule
         context.PrepareOptions<RamshaTypeReplacementOptions>(options =>
         {
             options.ReplaceUser<AppIdentityUser>();
-            options.Replace<CreateRamshaIdentityUserDto, CreateAppUserDto>();
-            options.Replace<UpdateRamshaIdentityUserDto, UpdateAppUserDto>();
-            options.ReplaceUserService<AppUserService>();
-            options.Replace<RamshaRegisterDto, AppRegisterDto>();
+            options.ReplaceBase<CreateRamshaIdentityUserDto, CreateAppUserDto>();
+            options.ReplaceBase<UpdateRamshaIdentityUserDto, UpdateAppUserDto>();
+            options.ReplaceIdentityUserService<AppUserService>();
+            options.ReplaceBase<RamshaRegisterDto, AppRegisterDto>();
             options.ReplaceAccountService<AppAccountService>();
         });
     }

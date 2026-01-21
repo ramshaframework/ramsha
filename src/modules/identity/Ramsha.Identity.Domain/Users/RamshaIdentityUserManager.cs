@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,8 +18,8 @@ public class RamshaIdentityUserManager<TUser>(
         IServiceProvider services,
         ILogger<RamshaIdentityUserManager<TUser>> logger,
 
-IIdentityRoleRepository<RamshaIdentityRole, Guid> roleRepository
-) : RamshaIdentityUserManager<TUser, RamshaIdentityRole, Guid, RamshaIdentityUserRole<Guid>, RamshaIdentityRoleClaim<Guid>, RamshaIdentityUserClaim<Guid>, RamshaIdentityUserLogin<Guid>, RamshaIdentityUserToken<Guid>>(
+IIdentityRoleRepository<RamshaIdentityRole<Guid>, Guid> roleRepository
+) : RamshaIdentityUserManager<TUser, Guid>(
 store,
      optionsAccessor,
             passwordHasher,
@@ -36,6 +33,37 @@ store,
 roleRepository
 )
 where TUser : RamshaIdentityUser, new()
+{
+
+}
+
+public class RamshaIdentityUserManager<TUser, TId>(
+  IUserStore<TUser> store,
+        IOptions<IdentityOptions> optionsAccessor,
+        IPasswordHasher<TUser> passwordHasher,
+        IEnumerable<IUserValidator<TUser>> userValidators,
+        IEnumerable<IPasswordValidator<TUser>> passwordValidators,
+        ILookupNormalizer keyNormalizer,
+        IdentityErrorDescriber errors,
+        IServiceProvider services,
+        ILogger<RamshaIdentityUserManager<TUser, TId>> logger,
+
+IIdentityRoleRepository<RamshaIdentityRole<TId>, TId> roleRepository
+) : RamshaIdentityUserManager<TUser, RamshaIdentityRole<TId>, TId, RamshaIdentityUserRole<TId>, RamshaIdentityRoleClaim<TId>, RamshaIdentityUserClaim<TId>, RamshaIdentityUserLogin<TId>, RamshaIdentityUserToken<TId>>(
+store,
+     optionsAccessor,
+            passwordHasher,
+            userValidators,
+            passwordValidators,
+            keyNormalizer,
+            errors,
+            services,
+            logger,
+
+roleRepository
+)
+where TId : IEquatable<TId>
+where TUser : RamshaIdentityUser<TId>, new()
 {
 
 }

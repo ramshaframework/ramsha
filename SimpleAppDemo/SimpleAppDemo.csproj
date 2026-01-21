@@ -17,6 +17,8 @@
       
       
     <ProjectReference Include="..\src\modules\account\Ramsha.Account.Auth.WebAuth\Ramsha.Account.Auth.WebAuth.csproj" />
+    <ProjectReference Include="..\src\modules\account\Ramsha.Account.Auth.ApiAuth\Ramsha.Account.Auth.ApiAuth.csproj" />
+
     
       
     <ProjectReference Include="..\src\modules\account\Ramsha.Account\Ramsha.Account.csproj" />

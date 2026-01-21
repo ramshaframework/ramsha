@@ -16,7 +16,7 @@ public static class MvcBuilderExtensions
             .MakeGenericType(
                 typesOptions.GetUserTypeOrBase(),
                  typesOptions.GetIdentityIdOrBase(),
-                 typesOptions.GetOrBase<RamshaLoginViewModel>())
+                 typesOptions.GetOrSelf<RamshaLoginViewModel>())
             );
     }
 }

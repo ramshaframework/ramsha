@@ -6,21 +6,35 @@ public sealed class RamshaTypeReplacementOptions
 
     public IReadOnlyDictionary<Type, Type> Replacements => _replacements;
 
-    public RamshaTypeReplacementOptions Replace<TBase, TImplementation>()
+    public RamshaTypeReplacementOptions ReplaceBase<TBase, TImplementation>()
         where TImplementation : TBase
     {
-        Replace(typeof(TBase), typeof(TImplementation));
+
+        ReplaceBase(typeof(TBase), typeof(TImplementation));
         return this;
     }
 
-
-    public RamshaTypeReplacementOptions ForceReplace(Type baseType, Type implementationType)
+    public RamshaTypeReplacementOptions Replace<TKey, TTarget>()
+    where TKey : IRamshaTypedKey
     {
-        _replacements[baseType] = implementationType;
+        Replace(typeof(TKey), typeof(TTarget));
         return this;
     }
 
-    public RamshaTypeReplacementOptions Replace(Type baseType, Type implementationType)
+    public RamshaTypeReplacementOptions Replace(Type key, Type targetType)
+    {
+        if (!typeof(IRamshaTypedKey).IsAssignableFrom(key))
+        {
+            throw new ArgumentException(
+                $"The Type {key.FullName} is not a typed key.");
+        }
+
+        _replacements[key] = targetType;
+        return this;
+    }
+
+
+    public RamshaTypeReplacementOptions ReplaceBase(Type baseType, Type implementationType)
     {
         if (!baseType.IsAssignableFrom(implementationType))
         {
@@ -32,19 +46,27 @@ public sealed class RamshaTypeReplacementOptions
         return this;
     }
 
-    public Type GetOrBase(Type baseType)
+    public Type GetOrSelf(Type keyType)
     {
-        return _replacements.TryGetValue(baseType, out var impl)
+        return _replacements.TryGetValue(keyType, out var impl)
             ? impl
-            : baseType;
+            : keyType;
     }
-    public Type? GetOrNull(Type baseType)
+    public Type? GetOrNull(Type keyType)
     {
-        return _replacements.TryGetValue(baseType, out var impl)
+        return _replacements.TryGetValue(keyType, out var impl)
             ? impl
             : null;
     }
 
-    public Type GetOrBase<TBase>()
-        => GetOrBase(typeof(TBase));
+    public bool TryGet(Type keyType, out Type targetType)
+    => _replacements.TryGetValue(keyType, out targetType);
+
+    public Type? GetOrNull<T>()
+    {
+        return GetOrNull(typeof(T));
+    }
+
+    public Type GetOrSelf<TBase>()
+        => GetOrSelf(typeof(TBase));
 }

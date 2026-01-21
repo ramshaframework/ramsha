@@ -6,43 +6,41 @@ namespace Ramsha.Identity.Application;
 
 public static class RamshaTypeReplacementOptionsExtensions
 {
-    public static (Type InterfaceType, Type ImplementationType) GetUserServiceOrBase(this RamshaTypeReplacementOptions options)
+    public static (Type InterfaceType, Type ImplementationType) GetIdentityUserServiceOrBase(this RamshaTypeReplacementOptions options)
     {
         var baseService = GetBaseUserServiceType(options);
-        return (options.GetOrBase(baseService.InterfaceType), options.GetOrBase(baseService.ImplementationType));
+        return (baseService.InterfaceType, options.GetOrSelf(baseService.ImplementationType));
     }
 
-    public static (Type InterfaceType, Type ImplementationType) GetRoleServiceOrBase(this RamshaTypeReplacementOptions options)
+    public static (Type InterfaceType, Type ImplementationType) GetIdentityRoleServiceOrBase(this RamshaTypeReplacementOptions options)
     {
         var baseService = GetBaseRoleServiceType(options);
-        return (options.GetOrBase(baseService.InterfaceType), options.GetOrBase(baseService.ImplementationType));
+        return (baseService.InterfaceType, options.GetOrSelf(baseService.ImplementationType));
     }
 
-    public static RamshaTypeReplacementOptions ReplaceUserService<TService>(this RamshaTypeReplacementOptions options)
+    public static RamshaTypeReplacementOptions ReplaceIdentityUserService<TService>(this RamshaTypeReplacementOptions options)
     where TService : IRamshaIdentityUserServiceBase
     {
         var service = GetBaseUserServiceType(options);
-        options.ForceReplace(service.InterfaceType, typeof(TService));
-        options.ForceReplace(service.ImplementationType, typeof(TService));
+        options.ReplaceBase(service.ImplementationType, typeof(TService));
 
         return options;
     }
 
-    public static RamshaTypeReplacementOptions ReplaceRoleService<TService>(RamshaTypeReplacementOptions options)
+    public static RamshaTypeReplacementOptions ReplaceIdentityRoleService<TService>(RamshaTypeReplacementOptions options)
     where TService : IRamshaIdentityRoleServiceBase
     {
         var service = GetBaseRoleServiceType(options);
-        options.ForceReplace(service.InterfaceType, typeof(TService));
-        options.ForceReplace(service.ImplementationType, typeof(TService));
+        options.ReplaceBase(service.ImplementationType, typeof(TService));
         return options;
     }
 
-    private static (Type InterfaceType, Type ImplementationType) GetBaseUserServiceType(RamshaTypeReplacementOptions options)
+    private static (Type InterfaceType, Type ImplementationType) GetBaseUserServiceType(this RamshaTypeReplacementOptions options)
     {
         var idType = options.GetIdentityIdOrBase();
-        var userDto = options.GetOrBase<RamshaIdentityUserDto>();
-        var updateDto = options.GetOrBase<UpdateRamshaIdentityUserDto>();
-        var createUserDto = options.GetOrBase<CreateRamshaIdentityUserDto>();
+        var userDto = options.GetOrSelf<RamshaIdentityUserDto>();
+        var updateDto = options.GetOrSelf<UpdateRamshaIdentityUserDto>();
+        var createUserDto = options.GetOrSelf<CreateRamshaIdentityUserDto>();
         var interfaceType = typeof(IRamshaIdentityUserService<,,,>)
            .MakeGenericType(
            userDto,
@@ -68,13 +66,13 @@ public static class RamshaTypeReplacementOptionsExtensions
         return (interfaceType, implementationType);
     }
 
-    private static (Type InterfaceType, Type ImplementationType) GetBaseRoleServiceType(RamshaTypeReplacementOptions options)
+    private static (Type InterfaceType, Type ImplementationType) GetBaseRoleServiceType(this RamshaTypeReplacementOptions options)
     {
 
         var idType = options.GetIdentityIdOrBase();
-        var roleDto = options.GetOrBase<RamshaIdentityRoleDto>();
-        var updateRoleDto = options.GetOrBase<UpdateRamshaIdentityRoleDto>();
-        var createRoleDto = options.GetOrBase<CreateRamshaIdentityRoleDto>();
+        var roleDto = options.GetOrSelf<RamshaIdentityRoleDto>();
+        var updateRoleDto = options.GetOrSelf<UpdateRamshaIdentityRoleDto>();
+        var createRoleDto = options.GetOrSelf<CreateRamshaIdentityRoleDto>();
         var implementationType = typeof(RamshaIdentityRoleService<,,,,,,>).MakeGenericType(
             options.GetRoleTypeOrBase(),
             idType,

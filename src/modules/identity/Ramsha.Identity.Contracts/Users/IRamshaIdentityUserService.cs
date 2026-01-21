@@ -1,7 +1,5 @@
 
 
-using Ramsha.Core;
-
 namespace Ramsha.Identity.Contracts;
 
 public interface IRamshaIdentityUserService<TDto, TCreateDto, TUpdateDto, TId> : IRamshaIdentityUserServiceBase
@@ -10,7 +8,7 @@ where TCreateDto : CreateRamshaIdentityUserDto
 where TUpdateDto : UpdateRamshaIdentityUserDto
 {
     Task<RamshaResult<TDto>> Get(TId id);
-    Task<RamshaResult<List<TDto>>> GetList(TId id);
+    Task<RamshaResult<List<TDto>>> GetList();
     Task<RamshaResult<string>> Create(TCreateDto createDto);
     Task<IRamshaResult> Update(TId id, TUpdateDto updateDto);
     Task<IRamshaResult> Delete(TId id);

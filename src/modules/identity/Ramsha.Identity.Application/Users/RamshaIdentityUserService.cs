@@ -1,19 +1,40 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using Ramsha.Core;
+
 using Ramsha.Identity.Contracts;
-using Ramsha.Identity.Shared;
 using Ramsha.Identity.Domain;
 using Ramsha.Common.Application;
 
 namespace Ramsha.Identity.Application;
 
-public class RamshaIdentityUserService<TUser, TDto, TCreateDto, TUpdateDto>(RamshaIdentityUserManager<TUser> userManager, IIdentityUserRepository<TUser, Guid> repository)
-: RamshaIdentityUserService<TUser, RamshaIdentityRole, Guid, RamshaIdentityUserRole<Guid>, RamshaIdentityRoleClaim<Guid>, RamshaIdentityUserClaim<Guid>, RamshaIdentityUserLogin<Guid>, RamshaIdentityUserToken<Guid>, TDto, TCreateDto, TUpdateDto>(userManager, repository)
+public class RamshaIdentityUserService<TUser>(RamshaIdentityUserManager<TUser> userManager, IIdentityUserRepository<TUser, Guid> repository)
+: RamshaIdentityUserService<TUser, Guid, RamshaIdentityUserDto, CreateRamshaIdentityUserDto, UpdateRamshaIdentityUserDto>(userManager, repository)
 where TUser : RamshaIdentityUser, new()
+{
+
+}
+
+public class RamshaIdentityUserService<TUser, TDto, TCreateDto, TUpdateDto>(RamshaIdentityUserManager<TUser> userManager, IIdentityUserRepository<TUser, Guid> repository)
+: RamshaIdentityUserService<TUser, Guid, TDto, TCreateDto, TUpdateDto>(userManager, repository)
+where TUser : RamshaIdentityUser, new()
+where TCreateDto : CreateRamshaIdentityUserDto, new()
+where TUpdateDto : UpdateRamshaIdentityUserDto, new()
+where TDto : RamshaIdentityUserDto, new()
+{
+
+}
+
+public class RamshaIdentityUserService<TUser, TId>(RamshaIdentityUserManager<TUser, TId> userManager, IIdentityUserRepository<TUser, TId> repository)
+: RamshaIdentityUserService<TUser, TId, RamshaIdentityUserDto, CreateRamshaIdentityUserDto, UpdateRamshaIdentityUserDto>(userManager, repository)
+where TId : IEquatable<TId>
+where TUser : RamshaIdentityUser<TId>, new()
+{
+
+}
+
+
+public class RamshaIdentityUserService<TUser, TId, TDto, TCreateDto, TUpdateDto>(RamshaIdentityUserManager<TUser, TId> userManager, IIdentityUserRepository<TUser, TId> repository)
+: RamshaIdentityUserService<TUser, RamshaIdentityRole<TId>, TId, RamshaIdentityUserRole<TId>, RamshaIdentityRoleClaim<TId>, RamshaIdentityUserClaim<TId>, RamshaIdentityUserLogin<TId>, RamshaIdentityUserToken<TId>, TDto, TCreateDto, TUpdateDto>(userManager, repository)
+where TId : IEquatable<TId>
+where TUser : RamshaIdentityUser<TId>, new()
 where TCreateDto : CreateRamshaIdentityUserDto, new()
 where TUpdateDto : UpdateRamshaIdentityUserDto, new()
 where TDto : RamshaIdentityUserDto, new()
@@ -146,7 +167,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
         });
     }
 
-    public async Task<RamshaResult<TDto>> Get(TId id)
+    public virtual async Task<RamshaResult<TDto>> Get(TId id)
     {
         var user = await repository.FindAsync(id);
         if (user is null)
@@ -157,7 +178,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
         return ToDto(user);
     }
 
-    public async Task<RamshaResult<List<TDto>>> GetList(TId id)
+    public virtual async Task<RamshaResult<List<TDto>>> GetList()
     {
         var users = await repository.GetListAsync();
         return users.Select(u => ToDto(u)).ToList();
@@ -166,7 +187,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
 
 
     //role management
-    public async Task<IRamshaResult> AddToRoleAsync(TId id, string roleName)
+    public virtual async Task<IRamshaResult> AddToRoleAsync(TId id, string roleName)
     {
         return await UnitOfWork<IRamshaResult>(async () =>
         {
@@ -181,7 +202,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
         });
     }
 
-    public async Task<IRamshaResult> RemoveFromRoleAsync(TId id, string roleName)
+    public virtual async Task<IRamshaResult> RemoveFromRoleAsync(TId id, string roleName)
     {
         var getUser = await userManager.GetByIdAsync(id);
         if (!getUser.Succeeded) return getUser.Error!;
@@ -192,7 +213,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
         return Success();
     }
 
-    public async Task<IRamshaResult> SetRolesAsync(TId id, IEnumerable<string> roleNames)
+    public virtual async Task<IRamshaResult> SetRolesAsync(TId id, IEnumerable<string> roleNames)
     {
         return await UnitOfWork<IRamshaResult>(async () =>
         {
@@ -207,7 +228,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
 
     }
 
-    public async Task<RamshaResult<List<string>>> GetRolesAsync(TId id)
+    public virtual async Task<RamshaResult<List<string>>> GetRolesAsync(TId id)
     {
         return await UnitOfWork<RamshaResult<List<string>>>(async () =>
        {
@@ -221,7 +242,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
 
 
     //password management
-    public async Task<IRamshaResult> ChangePasswordAsync(TId id, string oldPassword, string newPassword)
+    public virtual async Task<IRamshaResult> ChangePasswordAsync(TId id, string oldPassword, string newPassword)
     {
 
         var getUser = await userManager.GetByIdAsync(id);
@@ -235,7 +256,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
 
 
 
-    public async Task<IRamshaResult> SetPasswordAsync(TId id, string newPassword)
+    public virtual async Task<IRamshaResult> SetPasswordAsync(TId id, string newPassword)
     {
         return await UnitOfWork<IRamshaResult>(async () =>
        {
@@ -256,7 +277,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
 
 
     //email and username
-    public async Task<IRamshaResult> SetEmailAsync(TId id, string email)
+    public virtual async Task<IRamshaResult> SetEmailAsync(TId id, string email)
     {
         return await UnitOfWork<IRamshaResult>(async () =>
        {
@@ -272,7 +293,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
 
 
 
-    public async Task<IRamshaResult> SetUserNameAsync(TId id, string username)
+    public virtual async Task<IRamshaResult> SetUserNameAsync(TId id, string username)
     {
         return await UnitOfWork<IRamshaResult>(async () =>
        {
@@ -288,7 +309,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
 
 
     //lockout
-    public async Task<IRamshaResult> SetLockoutAsync(TId id, DateTimeOffset? end)
+    public virtual async Task<IRamshaResult> SetLockoutAsync(TId id, DateTimeOffset? end)
     {
         return await UnitOfWork<IRamshaResult>(async () =>
        {
@@ -302,7 +323,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
        });
     }
 
-    public Task<IRamshaResult> UnlockAsync(TId id)
+    public virtual Task<IRamshaResult> UnlockAsync(TId id)
         => SetLockoutAsync(id, null);
 
 }

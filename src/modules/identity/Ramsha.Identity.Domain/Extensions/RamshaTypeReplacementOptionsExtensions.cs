@@ -1,10 +1,60 @@
-using Ramsha.Common.Domain;
 using Ramsha.Identity.Shared;
 
 namespace Ramsha.Identity.Domain;
 
 public static class RamshaTypeReplacementOptionsExtensions
 {
+    public static RamshaTypeReplacementOptions? ReplaceIdentityEntities<TUser>(this RamshaTypeReplacementOptions options)
+    where TUser : RamshaIdentityUser, new()
+    {
+        options.ReplaceUser<TUser>();
+        return options;
+    }
+
+    public static RamshaTypeReplacementOptions? ReplaceIdentityEntities<TUser, TRole>(this RamshaTypeReplacementOptions options)
+    where TUser : RamshaIdentityUser, new()
+    where TRole : RamshaIdentityRole, new()
+    {
+        options.ReplaceUser<TUser>();
+        options.ReplaceRole<TRole>();
+        return options;
+    }
+
+    public static RamshaTypeReplacementOptions? ReplaceIdentityEntities<TUser, TRole, TId>(this RamshaTypeReplacementOptions options)
+    where TId : IEquatable<TId>
+    where TUser : RamshaIdentityUser<TId>, new()
+    where TRole : RamshaIdentityRole<TId>, new()
+    {
+        options.ReplaceIdentityId<TId>();
+        options.ReplaceUser<TUser>();
+        options.ReplaceRole<TRole>();
+        return options;
+    }
+
+    public static RamshaTypeReplacementOptions? ReplaceIdentityEntities<TUser, TRole, TId, TUserRole, TRoleClaim, TUserClaim, TUserLogin, TUserToken>(this RamshaTypeReplacementOptions options)
+     where TId : IEquatable<TId>
+     where TUser : RamshaIdentityUser<TId, TUserClaim, TUserRole, TUserLogin, TUserToken>, new()
+     where TUserClaim : RamshaIdentityUserClaim<TId>, new()
+     where TUserRole : RamshaIdentityUserRole<TId>, new()
+     where TUserLogin : RamshaIdentityUserLogin<TId>, new()
+     where TUserToken : RamshaIdentityUserToken<TId>, new()
+     where TRole : RamshaIdentityRole<TId, TUserRole, TRoleClaim>, new()
+     where TRoleClaim : RamshaIdentityRoleClaim<TId>, new()
+    {
+        options.ReplaceIdentityId<TId>();
+        options.ReplaceUser<TUser>();
+        options.ReplaceRole<TRole>();
+        options.ReplaceUserRole<TUserRole>();
+        options.ReplaceRoleClaim<TRoleClaim>();
+        options.ReplaceUserClaim<TUserClaim>();
+        options.ReplaceUserLogin<TUserLogin>();
+        options.ReplaceUserToken<TUserToken>();
+
+        return options;
+    }
+
+
+
 
     public static RamshaIdentityEntitiesTypes GetRamshaIdentityEntitiesTypes(this RamshaTypeReplacementOptions options)
     {
@@ -31,140 +81,91 @@ public static class RamshaTypeReplacementOptionsExtensions
 
     public static Type GetUserRoleTypeOrBase(this RamshaTypeReplacementOptions options)
     {
-        return options.GetOrBase(GetBaseUserRoleType());
+        return options.GetOrSelf(GetBaseUserRoleType(options.GetIdentityIdOrBase()));
     }
 
     public static Type GetUserClaimTypeOrBase(this RamshaTypeReplacementOptions options)
     {
-        return options.GetOrBase(GetBaseUserClaimType());
+        return options.GetOrSelf(GetBaseUserClaimType(options.GetIdentityIdOrBase()));
     }
 
     public static Type GetUserLoginTypeOrBase(this RamshaTypeReplacementOptions options)
     {
-        return options.GetOrBase(GetBaseUserLoginType());
+        return options.GetOrNull(typeof(RamshaUserLoginTypeTypedKey)) ?? GetBaseUserLoginType(options.GetIdentityIdOrBase());
     }
     public static Type GetUserTokenTypeOrBase(this RamshaTypeReplacementOptions options)
     {
-        return options.GetOrBase(GetBaseUserTokenType());
+        return options.GetOrNull(typeof(RamshaUserTokenTypeTypedKey)) ?? GetBaseUserTokenType(options.GetIdentityIdOrBase());
     }
 
     public static Type GetRoleClaimTypeOrBase(this RamshaTypeReplacementOptions options)
     {
-        return options.GetOrBase(GetBaseRoleClaimType());
+        return options.GetOrNull(typeof(RamshaRoleClaimTypeTypedKey)) ?? GetBaseRoleClaimType(options.GetIdentityIdOrBase());
     }
 
     public static Type GetRoleTypeOrBase(this RamshaTypeReplacementOptions options)
     {
-        return options.GetOrBase(GetBaseRoleType());
+        return options.GetOrNull(typeof(RamshaRoleTypeTypedKey)) ?? GetBaseRoleType();
     }
 
     public static Type GetUserTypeOrBase(this RamshaTypeReplacementOptions options)
     {
-        return options.GetOrBase(GetBaseUserType());
+        return options.GetOrNull(typeof(RamshaUserTypeTypedKey)) ?? GetBaseUserType();
     }
 
-    public static RamshaTypeReplacementOptions ReplaceRole<TRole>(this RamshaTypeReplacementOptions options)
+    private static RamshaTypeReplacementOptions ReplaceRole<TRole>(this RamshaTypeReplacementOptions options)
     {
-        options.ForceReplace(GetBaseRoleType(), typeof(TRole));
+        ReplaceRole(options, typeof(TRole));
         return options;
     }
 
-    public static RamshaTypeReplacementOptions ReplaceUser<TUser>(this RamshaTypeReplacementOptions options)
+    private static RamshaTypeReplacementOptions ReplaceUser<TUser>(this RamshaTypeReplacementOptions options)
     {
         ReplaceUser(options, typeof(TUser));
         return options;
     }
 
-
-
-    public static RamshaTypeReplacementOptions ReplaceRole(this RamshaTypeReplacementOptions options, Type roleType)
+    private static RamshaTypeReplacementOptions ReplaceRole(this RamshaTypeReplacementOptions options, Type roleType)
     {
-        options.ForceReplace(GetBaseRoleType(), roleType);
+        options.Replace(typeof(RamshaRoleTypeTypedKey), roleType);
         return options;
     }
 
-    public static RamshaTypeReplacementOptions ReplaceUser(this RamshaTypeReplacementOptions options, Type userType)
+    private static RamshaTypeReplacementOptions ReplaceUser(this RamshaTypeReplacementOptions options, Type userType)
     {
-        var userIdType = FoundAndValidateIdentityEntityId(userType, options);
-        var expectedBase = typeof(RamshaIdentityUserBase<>)
-        .MakeGenericType(userIdType);
-
-        if (!expectedBase.IsAssignableFrom(userType))
-        {
-            throw new RamshaException("Invalid identity user type");
-        }
-        options.ForceReplace(GetBaseUserType(), userType);
+        options.Replace(typeof(RamshaUserTypeTypedKey), userType);
         return options;
     }
 
-    private static Type FoundAndValidateIdentityEntityId(Type entityType, RamshaTypeReplacementOptions options)
+
+
+    private static RamshaTypeReplacementOptions ReplaceUserRole<TUserRole>(this RamshaTypeReplacementOptions options)
     {
-        var entityIdType = EntityHelper.FindPrimaryKeyType(entityType);
-
-        if (entityIdType is null)
-        {
-            throw new RamshaException(
-                $"Unable to determine the primary key type for entity '{entityType.FullName}'. " +
-                $"Identity entities must define a valid primary key.");
-        }
-
-        var identityIdType = options.GetIdentityIdOrBase();
-
-        if (identityIdType is not null)
-        {
-            if (entityIdType != identityIdType)
-            {
-                throw new RamshaException(
-                    $"Identity key type mismatch for entity '{entityType.FullName}'. " +
-                    $"Expected '{identityIdType.Name}' but found '{entityIdType.Name}'. " +
-                    $"All identity entities must use the same key type.");
-            }
-        }
-        else
-        {
-            options.ReplaceIdentityId(entityIdType);
-        }
-
-        return entityIdType;
-    }
-
-    public static RamshaTypeReplacementOptions ReplaceUserRole<TUserRole, TId>(this RamshaTypeReplacementOptions options)
-    where TId : IEquatable<TId>
-    where TUserRole : RamshaIdentityUserRole<TId>
-    {
-        options.ForceReplace(GetBaseUserRoleType(), typeof(TUserRole));
+        options.Replace(typeof(RamshaUserRoleTypeTypedKey), typeof(TUserRole));
         return options;
     }
 
-    public static RamshaTypeReplacementOptions ReplaceUserClaim<TUserClaim, TId>(this RamshaTypeReplacementOptions options)
-    where TId : IEquatable<TId>
-    where TUserClaim : RamshaIdentityUserClaim<TId>
+    private static RamshaTypeReplacementOptions ReplaceUserClaim<TUserClaim>(this RamshaTypeReplacementOptions options)
     {
-        options.ForceReplace(GetBaseUserClaimType(), typeof(TUserClaim));
+        options.Replace(typeof(RamshaUserClaimTypeTypedKey), typeof(TUserClaim));
         return options;
     }
 
-    public static RamshaTypeReplacementOptions ReplaceUserLogin<TUserLogin, TId>(this RamshaTypeReplacementOptions options)
-   where TId : IEquatable<TId>
-   where TUserLogin : RamshaIdentityUserLogin<TId>
+    private static RamshaTypeReplacementOptions ReplaceUserLogin<TUserLogin>(this RamshaTypeReplacementOptions options)
     {
-        options.ForceReplace(GetBaseUserLoginType(), typeof(TUserLogin));
+        options.Replace(typeof(RamshaUserLoginTypeTypedKey), typeof(TUserLogin));
         return options;
     }
 
-    public static RamshaTypeReplacementOptions ReplaceUserToken<TUserToken, TId>(this RamshaTypeReplacementOptions options)
-   where TId : IEquatable<TId>
-   where TUserToken : RamshaIdentityUserToken<TId>
+    private static RamshaTypeReplacementOptions ReplaceUserToken<TUserToken>(this RamshaTypeReplacementOptions options)
     {
-        options.ForceReplace(GetBaseUserTokenType(), typeof(TUserToken));
+        options.Replace(typeof(RamshaUserTokenTypeTypedKey), typeof(TUserToken));
         return options;
     }
 
-    public static RamshaTypeReplacementOptions ReplaceRoleClaim<TRoleClaim, TId>(this RamshaTypeReplacementOptions options)
-   where TId : IEquatable<TId>
-   where TRoleClaim : RamshaIdentityRoleClaim<TId>
+    private static RamshaTypeReplacementOptions ReplaceRoleClaim<TRoleClaim>(this RamshaTypeReplacementOptions options)
     {
-        options.ForceReplace(GetBaseRoleClaimType(), typeof(TRoleClaim));
+        options.Replace(typeof(RamshaRoleClaimTypeTypedKey), typeof(TRoleClaim));
         return options;
     }
 
@@ -178,30 +179,38 @@ public static class RamshaTypeReplacementOptionsExtensions
         return typeof(RamshaIdentityRole);
     }
 
-    private static Type GetBaseUserRoleType()
+    private static Type GetBaseUserRoleType(Type idType)
     {
-        return typeof(RamshaIdentityUserRole<Guid>);
+        return typeof(RamshaIdentityUserRole<>).MakeGenericType(idType);
     }
 
-    private static Type GetBaseUserClaimType()
+    private static Type GetBaseUserClaimType(Type idType)
     {
-        return typeof(RamshaIdentityUserClaim<Guid>);
+        return typeof(RamshaIdentityUserClaim<>).MakeGenericType(idType);
     }
 
-    private static Type GetBaseUserTokenType()
+    private static Type GetBaseUserTokenType(Type idType)
     {
-        return typeof(RamshaIdentityUserToken<Guid>);
+        return typeof(RamshaIdentityUserToken<>).MakeGenericType(idType);
     }
 
-    private static Type GetBaseUserLoginType()
+    private static Type GetBaseUserLoginType(Type idType)
     {
-        return typeof(RamshaIdentityUserLogin<Guid>);
+        return typeof(RamshaIdentityUserLogin<>).MakeGenericType(idType);
     }
 
-    private static Type GetBaseRoleClaimType()
+    private static Type GetBaseRoleClaimType(Type idType)
     {
-        return typeof(RamshaIdentityRoleClaim<Guid>);
+        return typeof(RamshaIdentityRoleClaim<>).MakeGenericType(idType);
     }
 
 
 }
+
+internal sealed class RamshaUserTypeTypedKey : IRamshaTypedKey { }
+internal sealed class RamshaRoleTypeTypedKey : IRamshaTypedKey { }
+internal sealed class RamshaUserClaimTypeTypedKey : IRamshaTypedKey { }
+internal sealed class RamshaUserRoleTypeTypedKey : IRamshaTypedKey { }
+internal sealed class RamshaUserLoginTypeTypedKey : IRamshaTypedKey { }
+internal sealed class RamshaUserTokenTypeTypedKey : IRamshaTypedKey { }
+internal sealed class RamshaRoleClaimTypeTypedKey : IRamshaTypedKey { }

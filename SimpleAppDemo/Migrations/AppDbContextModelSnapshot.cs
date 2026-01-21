@@ -21,11 +21,13 @@ namespace SimpleAppDemo.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityRole", b =>
+            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityRole<int>", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("IsBase")
                         .HasColumnType("bit");
@@ -43,11 +45,13 @@ namespace SimpleAppDemo.Migrations
                     b.ToTable("RamshaIdentityRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityRoleClaim<System.Guid>", b =>
+            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityRoleClaim<int>", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
                         .IsRequired()
@@ -57,8 +61,8 @@ namespace SimpleAppDemo.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -67,11 +71,98 @@ namespace SimpleAppDemo.Migrations
                     b.ToTable("RamshaIdentityRoleClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUser", b =>
+            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserClaim<int>", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RamshaIdentityUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserLogin<int>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RamshaIdentityUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserRole<int>", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RamshaIdentityUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserToken<int>", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("RamshaIdentityUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("SimpleAppDemo.Identity.AppUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
@@ -141,178 +232,65 @@ namespace SimpleAppDemo.Migrations
                     b.ToTable("RamshaIdentityUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserClaim<System.Guid>", b =>
+            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityRoleClaim<int>", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ClaimType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RamshaIdentityUserClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserLogin<System.Guid>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RamshaIdentityUserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserRole<System.Guid>", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("RamshaIdentityUserRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserToken<System.Guid>", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("LoginProvider")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("RamshaIdentityUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("Ramsha.JwtAuth.Domain.RamshaRefreshToken", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExpiresOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("RevokedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RamshaRefreshTokens", (string)null);
-                });
-
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityRoleClaim<System.Guid>", b =>
-                {
-                    b.HasOne("Ramsha.Identity.Domain.RamshaIdentityRole", null)
+                    b.HasOne("Ramsha.Identity.Domain.RamshaIdentityRole<int>", null)
                         .WithMany("Claims")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserClaim<System.Guid>", b =>
+            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("Ramsha.Identity.Domain.RamshaIdentityUser", null)
+                    b.HasOne("SimpleAppDemo.Identity.AppUser", null)
                         .WithMany("Claims")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserLogin<System.Guid>", b =>
+            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("Ramsha.Identity.Domain.RamshaIdentityUser", null)
+                    b.HasOne("SimpleAppDemo.Identity.AppUser", null)
                         .WithMany("Logins")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserRole<System.Guid>", b =>
+            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserRole<int>", b =>
                 {
-                    b.HasOne("Ramsha.Identity.Domain.RamshaIdentityRole", null)
+                    b.HasOne("Ramsha.Identity.Domain.RamshaIdentityRole<int>", null)
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Ramsha.Identity.Domain.RamshaIdentityUser", null)
+                    b.HasOne("SimpleAppDemo.Identity.AppUser", null)
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserToken<System.Guid>", b =>
+            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUserToken<int>", b =>
                 {
-                    b.HasOne("Ramsha.Identity.Domain.RamshaIdentityUser", null)
+                    b.HasOne("SimpleAppDemo.Identity.AppUser", null)
                         .WithMany("Tokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityRole", b =>
+            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityRole<int>", b =>
                 {
                     b.Navigation("Claims");
 
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("Ramsha.Identity.Domain.RamshaIdentityUser", b =>
+            modelBuilder.Entity("SimpleAppDemo.Identity.AppUser", b =>
                 {
                     b.Navigation("Claims");
 

@@ -17,8 +17,8 @@ where TDto : RamshaIdentityUserDto
   => RamshaResult(await userService.Get(id));
 
   [HttpGet]
-  public async Task<ActionResult<List<TDto>>> GetList(TId id)
-  => RamshaResult(await userService.GetList(id));
+  public async Task<ActionResult<List<TDto>>> GetList()
+  => RamshaResult(await userService.GetList());
 
   [HttpPost]
   public async Task<ActionResult<string>> Create(TCreateDto createDto)
