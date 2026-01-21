@@ -65,5 +65,35 @@ where TRegisterDto : RamshaRegisterDto, new()
         return default;
     }
 
+    public async Task<IRamshaResult> ResetPasswordAsync(string username, string token, string newPassword)
+    {
+        return await UnitOfWork<IRamshaResult>(async () =>
+       {
+           var user = await userManager.FindByNameAsync(username);
+           if (user is null)
+               return NotFound(message: "no user found");
+
+           var result = await userManager.ResetPasswordAsync(user, token, newPassword);
+           if (!result.Succeeded) return result.MapToRamshaError();
+
+           return Success();
+       });
+    }
+
+    public async Task<IRamshaResult> ConfirmEmailAsync(string email, string token)
+    {
+        return await UnitOfWork<IRamshaResult>(async () =>
+       {
+           var user = await userManager.FindByEmailAsync(email);
+           if (user is null)
+               return NotFound(message: "no user found");
+
+           var result = await userManager.ConfirmEmailAsync(user, token);
+           if (!result.Succeeded) return result.MapToRamshaError();
+
+           return Success();
+       });
+    }
+
 
 }

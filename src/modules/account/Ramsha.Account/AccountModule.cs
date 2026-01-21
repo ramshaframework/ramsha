@@ -1,5 +1,6 @@
 ﻿using Ramsha.Account.Api;
 using Ramsha.Account.Application;
+using Ramsha.Account.Web;
 
 namespace Ramsha.Account;
 
@@ -10,6 +11,7 @@ public class AccountModule : RamshaModule
         base.Register(context);
         context
         .DependsOn<AccountApplicationModule>()
-        .DependsOn<AccountApiModule>();
+        .DependsOn<AccountApiModule>()
+        .DependsOn<AccountWebModule>();
     }
 }

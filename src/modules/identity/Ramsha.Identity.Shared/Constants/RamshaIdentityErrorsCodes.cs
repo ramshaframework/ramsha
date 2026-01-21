@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Ramsha.Identity.Shared;
 
 public static class RamshaIdentityErrorsCodes
 {
-    public const string IDENTITY_PREFIX = "identity:";
-    public const string IDENTITY_DEFAULT = IDENTITY_PREFIX + "default";
-    public const string GenerateUsernameErrorCode = IDENTITY_PREFIX + "generateUsername";
+    public const string IDENTITY_PREFIX = "Identity:";
+    public const string Default = IDENTITY_PREFIX + nameof(Default);
+    public const string GenerateUsernameErrorCode = IDENTITY_PREFIX + nameof(GenerateUsernameErrorCode);
+    public const string RequiresTwoFactor = nameof(RequiresTwoFactor);
+    public const string IsNotAllowed = nameof(IsNotAllowed);
+    public const string IsLockedOut = nameof(IsLockedOut);
 
 }

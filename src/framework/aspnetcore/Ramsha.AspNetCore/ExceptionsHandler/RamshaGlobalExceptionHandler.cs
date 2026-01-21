@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -23,7 +25,13 @@ public class RamshaGlobalExceptionHandler(
         var errorResult = exception.ToKnownError();
 
         httpContext.Response.StatusCode = (int)errorResult.Status;
-        await httpContext.Response.WriteAsJsonAsync(errorResult, cancellationToken);
+        httpContext.Response.ContentType = "application/json; charset=utf-8";
+
+        var jsonResult = JsonSerializer.Serialize(errorResult, new JsonSerializerOptions
+        {
+            ReferenceHandler = ReferenceHandler.IgnoreCycles
+        });
+        await httpContext.Response.WriteAsync(jsonResult, cancellationToken);
 
         return true;
     }

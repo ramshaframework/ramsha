@@ -16,6 +16,7 @@ using Ramsha.Identity.Api;
 using Ramsha.Identity.Application;
 using Ramsha.Identity.AspNetCore;
 using Ramsha.Identity.Contracts;
+using Ramsha.Identity.Domain;
 using Ramsha.Identity.Persistence;
 using Ramsha.Identity.Shared;
 using Ramsha.LocalMessaging.Abstractions;
@@ -61,20 +62,13 @@ public class AppModule : RamshaModule
            options.AddMessagesFromAssembly<AppModule>();
        });
 
-        context.PrepareOptions<RamshaIdentityTypesOptions>(options =>
+        context.PrepareOptions<RamshaTypeReplacementOptions>(options =>
         {
-            options.UserType = typeof(AppIdentityUser);
-        });
-        context.PrepareOptions<RamshaIdentityContractsOptions>(options =>
-        {
-            options.ReplaceDto<CreateRamshaIdentityUserDto, CreateAppUserDto>();
-            options.ReplaceDto<UpdateRamshaIdentityUserDto, UpdateAppUserDto>();
+            options.ReplaceUser<AppIdentityUser>();
+            options.Replace<CreateRamshaIdentityUserDto, CreateAppUserDto>();
+            options.Replace<UpdateRamshaIdentityUserDto, UpdateAppUserDto>();
             options.ReplaceUserService<AppUserService>();
-        });
-
-        context.PrepareOptions<RamshaAccountContractsOptions>(options =>
-        {
-            options.ReplaceDto<RamshaRegisterDto, AppRegisterDto>();
+            options.Replace<RamshaRegisterDto, AppRegisterDto>();
             options.ReplaceAccountService<AppAccountService>();
         });
     }

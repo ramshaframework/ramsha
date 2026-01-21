@@ -8,6 +8,7 @@ using Ramsha.EntityFrameworkCore;
 using Ramsha.Identity.Shared;
 using Ramsha.Identity.Domain;
 using Ramsha.Identity.Persistence;
+using Ramsha;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -40,18 +41,21 @@ public static class ServiceCollectionExtensions
     }
     private static void RegisterServices(IServiceCollection services)
     {
-        var typesOptions = services.ExecutePreparedOptions<RamshaIdentityTypesOptions>();
-        Validate(typesOptions.UserType, typesOptions.RoleType);
+        var typesOptions = services.ExecutePreparedOptions<RamshaTypeReplacementOptions>();
+
+        var entitiesTypes = typesOptions.GetRamshaIdentityEntitiesTypes();
+        var keyType = typesOptions.GetIdentityIdOrBase();
+        Validate(entitiesTypes.UserType, entitiesTypes.RoleType);
 
 
         var dbContextInterfaceType = typeof(IIdentityDbContext<,,,,,,,>)
-        .MakeGenericType(typesOptions.UserType, typesOptions.RoleType, typesOptions.KeyType, typesOptions.UserRoleType, typesOptions.RoleClaimType, typesOptions.UserClaimType, typesOptions.UserLoginType, typesOptions.UserTokenType);
+        .MakeGenericType(entitiesTypes.UserType, entitiesTypes.RoleType, keyType, entitiesTypes.UserRoleType, entitiesTypes.RoleClaimType, entitiesTypes.UserClaimType, entitiesTypes.UserLoginType, entitiesTypes.UserTokenType);
         var dbContextType = typeof(IdentityDbContext<,,,,,,,>)
-       .MakeGenericType(typesOptions.UserType, typesOptions.RoleType, typesOptions.KeyType, typesOptions.UserRoleType, typesOptions.RoleClaimType, typesOptions.UserClaimType, typesOptions.UserLoginType, typesOptions.UserTokenType);
+       .MakeGenericType(entitiesTypes.UserType, entitiesTypes.RoleType, keyType, entitiesTypes.UserRoleType, entitiesTypes.RoleClaimType, entitiesTypes.UserClaimType, entitiesTypes.UserLoginType, entitiesTypes.UserTokenType);
 
-        RegisterDbContextAndRepositories(services, dbContextInterfaceType, dbContextType, typesOptions.UserType, typesOptions.RoleType, typesOptions.KeyType, typesOptions.UserRoleType, typesOptions.RoleClaimType, typesOptions.UserClaimType, typesOptions.UserLoginType, typesOptions.UserTokenType);
+        RegisterDbContextAndRepositories(services, dbContextInterfaceType, dbContextType, entitiesTypes.UserType, entitiesTypes.RoleType, keyType, entitiesTypes.UserRoleType, entitiesTypes.RoleClaimType, entitiesTypes.UserClaimType, entitiesTypes.UserLoginType, entitiesTypes.UserTokenType);
 
-        AddIdentityStores(services, typesOptions.UserType, typesOptions.RoleType, typesOptions.KeyType, typesOptions.UserRoleType, typesOptions.RoleClaimType, typesOptions.UserClaimType, typesOptions.UserLoginType, typesOptions.UserTokenType);
+        AddIdentityStores(services, entitiesTypes.UserType, entitiesTypes.RoleType, keyType, entitiesTypes.UserRoleType, entitiesTypes.RoleClaimType, entitiesTypes.UserClaimType, entitiesTypes.UserLoginType, entitiesTypes.UserTokenType);
 
     }
 

@@ -21,6 +21,6 @@ public static class IdentityResultExtensions
         .Select(e => new NamedError(e.Code, e.Description, e.Code))
         .ToList();
 
-        return new RamshaErrorResult(status, "Identity Errors happened .", IDENTITY_DEFAULT, errors);
+        return new RamshaErrorResult(status, "Identity Errors happened .", Default, errors);
     }
 }

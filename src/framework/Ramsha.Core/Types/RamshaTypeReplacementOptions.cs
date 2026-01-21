@@ -13,6 +13,13 @@ public sealed class RamshaTypeReplacementOptions
         return this;
     }
 
+
+    public RamshaTypeReplacementOptions ForceReplace(Type baseType, Type implementationType)
+    {
+        _replacements[baseType] = implementationType;
+        return this;
+    }
+
     public RamshaTypeReplacementOptions Replace(Type baseType, Type implementationType)
     {
         if (!baseType.IsAssignableFrom(implementationType))
@@ -30,6 +37,12 @@ public sealed class RamshaTypeReplacementOptions
         return _replacements.TryGetValue(baseType, out var impl)
             ? impl
             : baseType;
+    }
+    public Type? GetOrNull(Type baseType)
+    {
+        return _replacements.TryGetValue(baseType, out var impl)
+            ? impl
+            : null;
     }
 
     public Type GetOrBase<TBase>()

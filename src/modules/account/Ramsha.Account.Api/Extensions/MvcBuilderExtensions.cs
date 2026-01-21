@@ -13,9 +13,9 @@ public static class MvcBuilderExtensions
 {
     public static void AddAccountGenericControllers(this IMvcBuilder builder)
     {
-        var contractsOptions = builder.Services.ExecutePreparedOptions<RamshaAccountContractsOptions>();
+        var typesOptions = builder.Services.ExecutePreparedOptions<RamshaTypeReplacementOptions>();
         builder.AddGenericControllers(
-            typeof(RamshaAccountController<>).MakeGenericType(contractsOptions.GetReplacedDtoOrBase<RamshaRegisterDto>())
+            typeof(RamshaAccountController<>).MakeGenericType(typesOptions.GetOrBase<RamshaRegisterDto>())
             );
     }
 }

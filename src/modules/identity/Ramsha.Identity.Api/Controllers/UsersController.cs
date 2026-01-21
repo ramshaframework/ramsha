@@ -16,7 +16,6 @@ where TDto : RamshaIdentityUserDto
   public async Task<ActionResult<TDto>> Get(TId id)
   => RamshaResult(await userService.Get(id));
 
-
   [HttpGet]
   public async Task<ActionResult<List<TDto>>> GetList(TId id)
   => RamshaResult(await userService.GetList(id));
@@ -32,8 +31,6 @@ where TDto : RamshaIdentityUserDto
   [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(TId id)
     => RamshaResult(await userService.Delete(id));
-
-
 
   // roles
   [HttpPost("{id}/roles/{roleName}")]
@@ -56,19 +53,6 @@ where TDto : RamshaIdentityUserDto
     => RamshaResult(await userService.GetRolesAsync(id));
 
 
-
-  //tokens
-  [HttpGet("{id}/token/email-confirmation")]
-  public async Task<ActionResult<string>> GenerateEmailConfirmationToken(TId id)
-    => RamshaResult(await userService.GenerateEmailConfirmationTokenAsync(id));
-
-
-  [HttpGet("{id}/token/password-reset")]
-  public async Task<ActionResult<string>> GeneratePasswordResetToken(TId id)
-   => RamshaResult(await userService.GeneratePasswordResetTokenAsync(id));
-
-
-
   //password
   [HttpPost("{id}/password/change")]
   public async Task<ActionResult> ChangePassword(TId id, string oldPassword, string newPassword)
@@ -80,21 +64,10 @@ where TDto : RamshaIdentityUserDto
    => RamshaResult(await userService.SetPasswordAsync(id, password));
 
 
-  [HttpPost("{id}/password/reset")]
-  public async Task<ActionResult> ResetPassword(TId id, string token, string newPassword)
-  => RamshaResult(await userService.ResetPasswordAsync(id, token, newPassword));
-
-
   //email and user
   [HttpPost("{id}/email/set")]
   public async Task<ActionResult> SetEmail(TId id, string email)
    => RamshaResult(await userService.SetEmailAsync(id, email));
-
-
-  [HttpPost("{id}/email/confirm")]
-  public async Task<ActionResult> ConfirmEmail(TId id, string token)
-   => RamshaResult(await userService.ConfirmEmailAsync(id, token));
-
 
   [HttpPost("{id}/username/set")]
   public async Task<ActionResult> SetUsername(TId id, string userName)

@@ -10,6 +10,7 @@
     <ProjectReference Include="..\Ramsha.Account.Api\Ramsha.Account.Api.csproj" />
     <ProjectReference Include="..\Ramsha.Account.Application\Ramsha.Account.Application.csproj" />
     <ProjectReference Include="..\Ramsha.Account.Contracts\Ramsha.Account.Contracts.csproj" />
+    <ProjectReference Include="..\Ramsha.Account.Web\Ramsha.Account.Web.csproj" />
   </ItemGroup>
 
 </Project>

@@ -14,6 +14,6 @@ public class IdentityContractsModule : RamshaModule
     public override void Prepare(PrepareContext context)
     {
         base.Prepare(context);
-        context.PrepareOptions<RamshaIdentityContractsOptions>(options => { });
+        context.PrepareOptions<RamshaTypeReplacementOptions>(options => { });
     }
 }

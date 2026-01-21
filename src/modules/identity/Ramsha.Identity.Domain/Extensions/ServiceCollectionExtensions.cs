@@ -13,20 +13,23 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddRamshaIdentityDomainServices(this IServiceCollection services)
     {
-        var typesOptions = services.ExecutePreparedOptions<RamshaIdentityTypesOptions>();
+        var typesOptions = services.ExecutePreparedOptions<RamshaTypeReplacementOptions>();
+
+        var entitiesTypes = typesOptions.GetRamshaIdentityEntitiesTypes();
+        var keyType = typesOptions.GetIdentityIdOrBase();
 
         // register userManager
-        var ramshaUserManagerType = typeof(RamshaIdentityUserManager<,,,,,,,>).MakeGenericType(typesOptions.UserType, typesOptions.RoleType, typesOptions.KeyType, typesOptions.UserRoleType, typesOptions.RoleClaimType, typesOptions.UserClaimType, typesOptions.UserLoginType, typesOptions.UserTokenType);
+        var ramshaUserManagerType = typeof(RamshaIdentityUserManager<,,,,,,,>).MakeGenericType(entitiesTypes.UserType, entitiesTypes.RoleType, keyType, entitiesTypes.UserRoleType, entitiesTypes.RoleClaimType, entitiesTypes.UserClaimType, entitiesTypes.UserLoginType, entitiesTypes.UserTokenType);
 
         services.TryAddScoped(ramshaUserManagerType);
-        services.TryAddScoped(typeof(RamshaIdentityUserManager<>).MakeGenericType(typesOptions.UserType));
-        services.TryAddScoped(typeof(UserManager<>).MakeGenericType(typesOptions.UserType), provider => provider.GetService(ramshaUserManagerType));
+        services.TryAddScoped(typeof(RamshaIdentityUserManager<>).MakeGenericType(entitiesTypes.UserType));
+        services.TryAddScoped(typeof(UserManager<>).MakeGenericType(entitiesTypes.UserType), provider => provider.GetService(ramshaUserManagerType));
 
         // register roleManager
-        var ramshaRoleManagerType = typeof(RamshaIdentityRoleManager<,,,>).MakeGenericType(typesOptions.RoleType, typesOptions.KeyType, typesOptions.UserRoleType, typesOptions.RoleClaimType);
+        var ramshaRoleManagerType = typeof(RamshaIdentityRoleManager<,,,>).MakeGenericType(entitiesTypes.RoleType, keyType, entitiesTypes.UserRoleType, entitiesTypes.RoleClaimType);
         services.TryAddScoped(ramshaRoleManagerType);
-        services.TryAddScoped(typeof(RamshaIdentityRoleManager<>).MakeGenericType(typesOptions.RoleType));
-        services.TryAddScoped(typeof(RoleManager<>).MakeGenericType(typesOptions.RoleType), provider => provider.GetService(ramshaRoleManagerType));
+        services.TryAddScoped(typeof(RamshaIdentityRoleManager<>).MakeGenericType(entitiesTypes.RoleType));
+        services.TryAddScoped(typeof(RoleManager<>).MakeGenericType(entitiesTypes.RoleType), provider => provider.GetService(ramshaRoleManagerType));
 
         return services;
 

@@ -6,60 +6,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Ramsha.Identity.Contracts;
 using Ramsha.Identity.Shared;
 
-namespace Ramsha.Identity.Application.Extensions;
+namespace Ramsha.Identity.Application;
 
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddRamshaIdentityApplicationServices(this IServiceCollection services)
     {
-        var entityTypes = services.ExecutePreparedOptions<RamshaIdentityTypesOptions>();
-        var contractsOptions = services.ExecutePreparedOptions<RamshaIdentityContractsOptions>();
+        var typesOptions = services.ExecutePreparedOptions<RamshaTypeReplacementOptions>();
+        var userService = typesOptions.GetUserServiceOrBase();
 
-        var userServiceImplementation = contractsOptions.ReplacedUserServiceType is not null ? contractsOptions.ReplacedUserServiceType : typeof(RamshaIdentityUserService<,,,,,,,,,,>).MakeGenericType(
-            entityTypes.UserType,
-            entityTypes.RoleType,
-            entityTypes.KeyType,
-            entityTypes.UserRoleType,
-            entityTypes.RoleClaimType,
-            entityTypes.UserClaimType,
-            entityTypes.UserLoginType,
-            entityTypes.UserTokenType,
-           contractsOptions.GetReplacedDtoOrBase<RamshaIdentityUserDto>(),
-            contractsOptions.GetReplacedDtoOrBase<CreateRamshaIdentityUserDto>(),
-            contractsOptions.GetReplacedDtoOrBase<UpdateRamshaIdentityUserDto>()
+        services.AddRamshaService(userService.ImplementationType, userService.InterfaceType);
 
-        );
-        var userServiceInterface = typeof(IRamshaIdentityUserService<,,,>)
-        .MakeGenericType(
-           contractsOptions.GetReplacedDtoOrBase<RamshaIdentityUserDto>(),
-           contractsOptions.GetReplacedDtoOrBase<CreateRamshaIdentityUserDto>(),
-            contractsOptions.GetReplacedDtoOrBase<UpdateRamshaIdentityUserDto>(),
-            entityTypes.KeyType
-            );
-
-        services.AddRamshaService(userServiceImplementation, userServiceInterface);
-
-
-        var roleServiceImplementation = contractsOptions.ReplacedRoleServiceType is not null ? contractsOptions.ReplacedRoleServiceType : typeof(RamshaIdentityRoleService<,,,,,,>).MakeGenericType(
-            entityTypes.RoleType,
-            entityTypes.KeyType,
-            entityTypes.UserRoleType,
-            entityTypes.RoleClaimType,
-contractsOptions.GetReplacedDtoOrBase<RamshaIdentityRoleDto>(),
-            contractsOptions.GetReplacedDtoOrBase<CreateRamshaIdentityRoleDto>(),
-            contractsOptions.GetReplacedDtoOrBase<UpdateRamshaIdentityRoleDto>()
-
-        );
-        var roleServiceInterface = typeof(IRamshaIdentityRoleService<,,,>)
-        .MakeGenericType(
-contractsOptions.GetReplacedDtoOrBase<RamshaIdentityRoleDto>(),
-           contractsOptions.GetReplacedDtoOrBase<CreateRamshaIdentityRoleDto>(),
-            contractsOptions.GetReplacedDtoOrBase<UpdateRamshaIdentityRoleDto>(),
-            entityTypes.KeyType
-            );
-
-        services.AddRamshaService(roleServiceImplementation, roleServiceInterface);
-
+        var roleService = typesOptions.GetRoleServiceOrBase();
+        services.AddRamshaService(roleService.ImplementationType, roleService.InterfaceType);
         return services;
     }
 }

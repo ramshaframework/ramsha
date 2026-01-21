@@ -16,12 +16,8 @@ where TUpdateDto : UpdateRamshaIdentityUserDto
     Task<IRamshaResult> Delete(TId id);
     Task<IRamshaResult> AddToRoleAsync(TId id, string roleName);
     Task<IRamshaResult> ChangePasswordAsync(TId id, string oldPassword, string newPassword);
-    Task<IRamshaResult> ConfirmEmailAsync(TId id, string token);
-    Task<RamshaResult<string>> GenerateEmailConfirmationTokenAsync(TId id);
-    Task<RamshaResult<string>> GeneratePasswordResetTokenAsync(TId id);
     Task<RamshaResult<List<string>>> GetRolesAsync(TId id);
     Task<IRamshaResult> RemoveFromRoleAsync(TId id, string roleName);
-    Task<IRamshaResult> ResetPasswordAsync(TId id, string token, string newPassword);
     Task<IRamshaResult> SetEmailAsync(TId id, string email);
     Task<IRamshaResult> SetLockoutAsync(TId id, DateTimeOffset? end);
     Task<IRamshaResult> SetPasswordAsync(TId id, string newPassword);

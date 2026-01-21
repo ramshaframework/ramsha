@@ -26,7 +26,7 @@ public class RamshaIdentityUser<TId>
  where TId : IEquatable<TId>
 
 {
-    protected RamshaIdentityUser()
+    public RamshaIdentityUser()
     {
 
     }
@@ -47,7 +47,7 @@ where TUserToken : RamshaIdentityUserToken<TId>, new()
 
 {
 
-    protected RamshaIdentityUser() { }
+    public RamshaIdentityUser() { }
     public RamshaIdentityUser(TId id, string userName) : this()
     {
         Id = id;

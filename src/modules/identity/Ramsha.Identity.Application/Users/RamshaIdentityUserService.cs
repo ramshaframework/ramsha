@@ -233,19 +233,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
         return Success();
     }
 
-    public async Task<IRamshaResult> ResetPasswordAsync(TId id, string token, string newPassword)
-    {
-        return await UnitOfWork<IRamshaResult>(async () =>
-       {
-           var getUser = await userManager.GetByIdAsync(id);
-           if (!getUser.Succeeded) return getUser.Error!;
 
-           var result = await userManager.ResetPasswordAsync(getUser.Value, token, newPassword);
-           if (!result.Succeeded) return result.MapToRamshaError();
-
-           return Success();
-       });
-    }
 
     public async Task<IRamshaResult> SetPasswordAsync(TId id, string newPassword)
     {
@@ -282,19 +270,7 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
        });
     }
 
-    public async Task<IRamshaResult> ConfirmEmailAsync(TId id, string token)
-    {
-        return await UnitOfWork<IRamshaResult>(async () =>
-       {
-           var getUser = await userManager.GetByIdAsync(id);
-           if (!getUser.Succeeded) return getUser.Error!;
 
-           var result = await userManager.ConfirmEmailAsync(getUser.Value, token);
-           if (!result.Succeeded) return result.MapToRamshaError();
-
-           return Success();
-       });
-    }
 
     public async Task<IRamshaResult> SetUserNameAsync(TId id, string username)
     {
@@ -328,27 +304,6 @@ where TUpdateDto : UpdateRamshaIdentityUserDto, new()
 
     public Task<IRamshaResult> UnlockAsync(TId id)
         => SetLockoutAsync(id, null);
-
-
-
-    // tokens
-    public async Task<RamshaResult<string>> GenerateEmailConfirmationTokenAsync(TId id)
-    {
-        var getUser = await userManager.GetByIdAsync(id);
-        if (!getUser.Succeeded) return getUser.Error!;
-
-        var token = await userManager.GenerateEmailConfirmationTokenAsync(getUser.Value);
-        return token;
-    }
-
-    public async Task<RamshaResult<string>> GeneratePasswordResetTokenAsync(TId id)
-    {
-        var getUser = await userManager.GetByIdAsync(id);
-        if (!getUser.Succeeded) return getUser.Error!;
-
-        var token = await userManager.GeneratePasswordResetTokenAsync(getUser.Value);
-        return token;
-    }
 
 }
 

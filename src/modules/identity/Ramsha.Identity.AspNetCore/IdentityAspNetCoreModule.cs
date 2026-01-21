@@ -35,12 +35,12 @@ public class IdentityAspNetCoreModule : RamshaModule
     public override void BuildServices(BuildServicesContext context)
     {
         base.BuildServices(context);
+
         context.Services
                .AddAuthentication(o =>
                {
                    o.DefaultScheme = IdentityConstants.ApplicationScheme;
                    o.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
                }).AddIdentityCookies();
-
     }
 }

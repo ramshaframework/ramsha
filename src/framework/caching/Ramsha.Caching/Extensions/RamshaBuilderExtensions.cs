@@ -4,7 +4,7 @@ namespace Ramsha;
 
 public static class RamshaBuilderExtensions
 {
-    public static RamshaBuilder AddCachingModule(this RamshaBuilder builder)
+    public static RamshaBuilder AddCaching(this RamshaBuilder builder)
     {
         return builder.AddModule<CachingModule>();
     }
