@@ -9,9 +9,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Ramsha;
 
-public static class AppFactory
+public static class RamshaFactory
 {
-    public static IInternalRamshaAppEngine Create<TStartupModule>(
+    public static IInternalRamshaAppEngine CreateApp<TStartupModule>(
       Action<AppCreationOptions>? optionsAction = null)
       where TStartupModule : IRamshaModule
     {

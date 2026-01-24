@@ -50,7 +50,7 @@ public static class ServiceCollectionExtensions
      Action<AppCreationOptions>? optionsAction = null)
      where TStartupModule : IRamshaModule
     {
-        return AppFactory.CreateApp<TStartupModule>(services, optionsAction);
+        return RamshaFactory.CreateApp<TStartupModule>(services, optionsAction);
     }
 
     public static IExternalRamshaAppEngine AddRamshaApp(
@@ -58,7 +58,7 @@ public static class ServiceCollectionExtensions
         [NotNull] Type startupModuleType,
         Action<AppCreationOptions>? optionsAction = null)
     {
-        return AppFactory.CreateApp(startupModuleType, services, optionsAction);
+        return RamshaFactory.CreateApp(startupModuleType, services, optionsAction);
     }
 
     public async static Task<IExternalRamshaAppEngine> AddRamshaAppAsync<TStartupModule>(
@@ -66,7 +66,7 @@ public static class ServiceCollectionExtensions
         Action<AppCreationOptions>? optionsAction = null)
         where TStartupModule : IRamshaModule
     {
-        return await AppFactory.CreateAppAsync<TStartupModule>(services, optionsAction);
+        return await RamshaFactory.CreateAppAsync<TStartupModule>(services, optionsAction);
     }
 
 
@@ -75,7 +75,7 @@ public static class ServiceCollectionExtensions
       [NotNull] Type startupModuleType,
       Action<AppCreationOptions>? optionsAction = null)
     {
-        return await AppFactory.CreateAppAsync(startupModuleType, services, optionsAction);
+        return await RamshaFactory.CreateAppAsync(startupModuleType, services, optionsAction);
     }
 
     public static string? GetApplicationName(this IServiceCollection services)

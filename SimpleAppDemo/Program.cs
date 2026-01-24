@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 var ramsha = builder.Services.AddRamsha(ramsha =>
 {
     ramsha
+    .AddCaching()
     .AddIdentity()
     .AddAccount()
     .AddAccountApiAuth()
