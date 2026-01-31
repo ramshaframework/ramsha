@@ -6,7 +6,7 @@ namespace Ramsha;
 
 public static class RamshaBuilderExtensions
 {
-    public static RamshaBuilder AddEFPostgreSqlModule(this RamshaBuilder ramsha)
+    public static RamshaBuilder AddEFPostgreSql(this RamshaBuilder ramsha)
     {
         ramsha.AddModule<EntityFrameworkCorePostgreSqlModule>();
         return ramsha;

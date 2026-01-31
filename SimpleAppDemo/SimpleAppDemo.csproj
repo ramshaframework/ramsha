@@ -13,7 +13,7 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
       <ProjectReference Include="..\src\framework\caching\Ramsha.Caching.Redis\Ramsha.Caching.Redis.csproj" />
       
-    <ProjectReference Include="..\src\framework\entity-framework-core\Ramsha.EntityFrameworkCore.SqlServer\Ramsha.EntityFrameworkCore.SqlServer.csproj" />
+    <ProjectReference Include="..\src\framework\entity-framework-core\Ramsha.EntityFrameworkCore.PostgreSql\Ramsha.EntityFrameworkCore.PostgreSql.csproj" />
       
       
     <ProjectReference Include="..\src\modules\account\Ramsha.Account.Auth.WebAuth\Ramsha.Account.Auth.WebAuth.csproj" />

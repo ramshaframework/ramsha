@@ -15,7 +15,7 @@ var ramsha = builder.Services.AddRamsha(ramsha =>
     .AddAccountWebAuth()
     .AddSettingsManagement()
     .AddPermissions()
-    .AddEFSqlServer();
+    .AddEFPostgreSql();
 
 
     ramsha.PrepareOptions<RamshaTypeReplacementOptions>(options =>

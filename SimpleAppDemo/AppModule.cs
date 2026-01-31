@@ -1,5 +1,5 @@
 using Ramsha;
-using Ramsha.EntityFrameworkCore.SqlServer;
+using Ramsha.EntityFrameworkCore.PostgreSql;
 using Ramsha.Identity;
 
 public class AppModule : RamshaModule
@@ -8,7 +8,7 @@ public class AppModule : RamshaModule
     {
         base.Register(context);
         context.DependsOn<IdentityModule>();
-        context.DependsOn<EntityFrameworkCoreSqlServerModule>();
+        context.DependsOn<EntityFrameworkCorePostgreSqlModule>();
     }
 
     public override void BuildServices(BuildServicesContext context)

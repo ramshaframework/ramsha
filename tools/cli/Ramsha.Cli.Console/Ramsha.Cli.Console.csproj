@@ -10,6 +10,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
      <AssemblyName>ramsha</AssemblyName>
+
+    <PackAsTool>true</PackAsTool>                 
+    <ToolCommandName>ramsha</ToolCommandName>    
+    <PackageId>Ramsha.Cli</PackageId>          
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/ramshaframework/ramsha</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
