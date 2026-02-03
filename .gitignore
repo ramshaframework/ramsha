@@ -365,6 +365,7 @@ FodyWeavers.xsd
 
 packages/
 local-packages/
+nuget.config
 
 src-packages/
 

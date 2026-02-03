@@ -1,6 +1,8 @@
 
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 
@@ -15,15 +17,28 @@ public class RamshaActionResult : ObjectResult
             result is IRamshaValueSuccessResult valueSuccessResult ? valueSuccessResult.Value : result is not RamshaErrorResult error ? result : new RamshaActionResultError(error, httpContext)
         )
     {
-        MapStatus(result);
+        MapResult(result,httpContext);
     }
 
-    protected virtual void MapStatus(IRamshaResult result)
+    protected virtual void MapResult(IRamshaResult result,HttpContext httpContext)
     {
+        if(result is IRamshaPagedResult pagedResult)
+        {
+                  var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
+        httpContext.Response.Headers.Append("PagedInfo", JsonSerializer.Serialize(pagedResult.PagedInfo, options));
+        httpContext.Response.Headers.Append("Access-Control-Expose-Headers", "PagedInfo");
+            
+        }
+        
         StatusCode = (int)result.Status;
     }
 
 }
+
 
 public class RamshaActionResultError(RamshaErrorResult error, HttpContext context)
 {

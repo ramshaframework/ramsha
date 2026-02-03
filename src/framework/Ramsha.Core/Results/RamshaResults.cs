@@ -6,6 +6,9 @@ public class RamshaResults
 {
     public static SuccessResult Success() => new();
     public static NoContentResult NoContent => new();
+
+    public static PagedResult<T> Paged<T>(List<T> value,RamshaPagedInfo info)
+    => new (value,info);
     public static SuccessResult<TValue> Success<TValue>(TValue value) => new(value);
 
     public static AcceptedResult Accepted(JobInfo job) => new(job);

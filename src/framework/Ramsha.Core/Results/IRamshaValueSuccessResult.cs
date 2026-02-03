@@ -6,3 +6,9 @@ public interface IRamshaValueSuccessResult : IRamshaSuccessResult
 }
 
 
+public interface IRamshaPagedResult : IRamshaValueSuccessResult
+{
+RamshaPagedInfo PagedInfo {get;}
+}
+
+public record RamshaPagedInfo(int Total,int PageSize,int PageNumber);

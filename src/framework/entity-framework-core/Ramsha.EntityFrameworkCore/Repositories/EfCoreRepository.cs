@@ -188,13 +188,68 @@ where TEntity : class, IEntity
  });
     }
 
-    public async Task<IQueryable<TEntity>> QueryAsync()
+    public async Task<IQueryable<TEntity>> GetQueryableAsync()
     {
         return await UnitOfWork(async () =>
         {
             var context = await GetDbContextAsync();
             return  context.Set<TEntity>().AsQueryable();
         });
+    }
+
+
+    public async Task<PagedResult<TEntity>> GetPagedAsync( PaginationParams paginationParams)
+    {
+        var query = await GetQueryableAsync();
+
+        var total = await query.CountAsync();
+        var pagedResult = await query
+            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Take(paginationParams.PageSize)
+            .ToListAsync();
+
+        return RamshaResults.Paged(pagedResult,new RamshaPagedInfo(total,paginationParams.PageSize,paginationParams.PageNumber));
+    }
+
+    public async Task<PagedResult<T>> GetPagedAsync<T>(PaginationParams paginationParams,Expression<Func<TEntity,T>> mapping)
+    {
+        var query = await GetQueryableAsync();
+        var total = await query.CountAsync();
+        var pagedResult = await query
+        .Select(mapping)
+            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Take(paginationParams.PageSize)
+            .ToListAsync();
+
+        return RamshaResults.Paged(pagedResult,new RamshaPagedInfo(total,paginationParams.PageSize,paginationParams.PageNumber));
+    }
+
+    public async Task<PagedResult<TEntity>> GetPagedAsync(Func<IQueryable<TEntity>,IQueryable<TEntity>> queryAction, PaginationParams paginationParams)
+    {
+        var query = await GetQueryableAsync();
+        queryAction(query);
+        var total = await query.CountAsync();
+        var pagedResult = await query
+            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Take(paginationParams.PageSize)
+            .ToListAsync();
+
+        return RamshaResults.Paged(pagedResult,new RamshaPagedInfo(total,paginationParams.PageSize,paginationParams.PageNumber));
+    }
+
+    public async Task<PagedResult<T>> GetPagedAsync<T>(Func<IQueryable<TEntity>,IQueryable<TEntity>> queryAction, PaginationParams paginationParams,Expression<Func<TEntity,T>> mapping)
+    {
+        var query = await GetQueryableAsync();
+        query = queryAction(query);
+
+        var total = await query.CountAsync();
+        var pagedResult = await query
+        .Select(mapping)
+            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Take(paginationParams.PageSize)
+            .ToListAsync();
+
+        return RamshaResults.Paged(pagedResult,new RamshaPagedInfo(total,paginationParams.PageSize,paginationParams.PageNumber));
     }
 }
 

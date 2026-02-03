@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Ramsha;
+using Ramsha.Common.Domain;
 using Ramsha.Identity.Application;
 using Ramsha.Identity.Domain;
 using SimpleAppDemo.Identity;
@@ -32,10 +34,8 @@ builder.Services.AddRamshaDbContext<AppDbContext>();
 var app = builder.Build();
 
 
-app.MapGet("query", (UserManager<AppUser> repository) =>
-{
-    return repository.Users.ToList();
-});
+
+
 
 app.MapDelete("test", () =>
 {

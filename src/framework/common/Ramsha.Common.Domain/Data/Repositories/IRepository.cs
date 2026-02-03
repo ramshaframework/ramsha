@@ -20,8 +20,12 @@ where TEntity : IEntity
     Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> criteria, params Expression<Func<TEntity, object>>[] includes);
     Task<List<TEntity>> GetListAsync(params Expression<Func<TEntity, object>>[] includes);
     Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> criteria, params Expression<Func<TEntity, object>>[] includes);
+    Task<IQueryable<TEntity>> GetQueryableAsync();
 
-    Task<IQueryable<TEntity>> QueryAsync();
+    Task<PagedResult<TEntity>> GetPagedAsync(PaginationParams paginationParams);
+    Task<PagedResult<T>> GetPagedAsync<T>(PaginationParams paginationParams,Expression<Func<TEntity,T>> mapping);
+    Task<PagedResult<TEntity>> GetPagedAsync(Func<IQueryable<TEntity>,IQueryable<TEntity>> queryAction,PaginationParams paginationParams);
+    Task<PagedResult<T>> GetPagedAsync<T>(Func<IQueryable<TEntity>,IQueryable<TEntity>> queryAction, PaginationParams paginationParams,Expression<Func<TEntity,T>> mapping);
 
 }
 
