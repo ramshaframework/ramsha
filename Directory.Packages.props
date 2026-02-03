@@ -66,7 +66,7 @@
     <PackageVersion Include="Cocona" Version="2.2.0" />
     <PackageVersion Include="Scriban" Version="6.5.2" />
 		<PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.1" />
-    <PackageVersion Include="Microsoft.NETCore.App.Runtime.win-x64" Version="9.0.9" />
+    <!-- <PackageVersion Include="Microsoft.NETCore.App.Runtime.win-x64" Version="9.0.9" /> -->
 		<PackageVersion Include="Microsoft.Build" Version="18.0.2" />
 
 

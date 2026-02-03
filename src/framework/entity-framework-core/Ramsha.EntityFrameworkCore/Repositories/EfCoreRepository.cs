@@ -187,6 +187,15 @@ where TEntity : class, IEntity
      context.RemoveRange(entities);
  });
     }
+
+    public async Task<IQueryable<TEntity>> QueryAsync()
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            return  context.Set<TEntity>().AsQueryable();
+        });
+    }
 }
 
 

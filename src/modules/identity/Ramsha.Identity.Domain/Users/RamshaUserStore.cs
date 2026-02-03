@@ -33,7 +33,8 @@ where TUserToken : RamshaIdentityUserToken<TId>, new()
 where TRole : RamshaIdentityRole<TId, TUserRole, TRoleClaim>, new()
 where TRoleClaim : RamshaIdentityRoleClaim<TId>, new()
 {
-    public IQueryable<TUser> Users => throw new NotImplementedException();
+    public IQueryable<TUser> Users 
+    => AsyncHelper.RunSync(userRepository.QueryAsync);
 
     private void ThrowIfUserNull(TUser user)
     {

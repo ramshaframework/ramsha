@@ -364,6 +364,7 @@ FodyWeavers.xsd
 
 
 packages/
+local-packages/
 
 src-packages/
 

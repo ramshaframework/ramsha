@@ -21,7 +21,7 @@ where TEntity : IEntity
     Task<List<TEntity>> GetListAsync(params Expression<Func<TEntity, object>>[] includes);
     Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> criteria, params Expression<Func<TEntity, object>>[] includes);
 
-
+    Task<IQueryable<TEntity>> QueryAsync();
 
 }
 
