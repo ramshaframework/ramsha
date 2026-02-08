@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Ramsha;
 using Ramsha.AspNetCore.Mvc;
 using Ramsha.Identity.Domain;
@@ -6,8 +7,16 @@ using SimpleAppDemo.Identity;
 
 namespace SimpleAppDemo.Controllers
 {
-    public class TestController(IIdentityUserRepository<AppUser,int> repository):RamshaApiController
+    public class TestController(IStringLocalizer<TestController> stringLocalizer,IIdentityUserRepository<AppUser,int> repository):RamshaApiController
     {
+
+        [HttpGet]
+        public async Task<ActionResult> GetLocalized()
+        {
+            return Ok(stringLocalizer["hello"]);
+        }
+
+
         [HttpPost]
         public async Task<ActionResult<List<UserDto>>> GetPaged(PaginationParams paginationParams)
         {

@@ -1,11 +1,14 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Ramsha;
 using Ramsha.AspNetCore;
 using Ramsha.AspNetCore.Security.Claims;
+using Ramsha.Localization;
 using Ramsha.Security.Claims;
 
 
@@ -30,6 +33,8 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services.AddTransient<IRamshaCookieService, RamshaCookieService>();
+
+            services.AddSingleton<IRamshaRequestLocalizationOptionsProvider, RamshaRequestLocalizationOptionsProvider>();
 
             return services;
         }

@@ -9,6 +9,8 @@ public static class AspNetCorePipelineEntries
 {
     public const string ExceptionHandler = Prefix + "exception-handler";
     public const string Prefix = "aspnetcore_";
+    public const string Localization = Prefix + "localization";
+
     public const string Authentication = Prefix + "authentication";
     public const string Authorization = Prefix + "authorization";
     public const string Routing = Prefix + "routing";

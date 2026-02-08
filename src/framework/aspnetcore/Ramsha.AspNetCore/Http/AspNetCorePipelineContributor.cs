@@ -16,6 +16,12 @@ public class AspNetCorePipelineContributor : IRamshaPipelineContributor
             CanRemove = false
         };
 
+
+        context.Pipeline.Use(AspNetCorePipelineEntries.Localization, app =>
+        {
+            app.UseRamshaRequestLocalization();
+        });
+
         context.Pipeline.Use(AspNetCorePipelineEntries.ExceptionHandler, app =>
         {
             app.UseExceptionHandler();

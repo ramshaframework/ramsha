@@ -6,10 +6,6 @@ using Microsoft.Extensions.Options;
 using Ramsha;
 using Ramsha.AspNetCore;
 
-namespace Ramsha.AspNetCore
-{
-
-}
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -125,5 +121,17 @@ namespace Microsoft.AspNetCore.Builder
                 additionalConfigurationAction?.Invoke(endpoints);
             });
         }
+
+
+        public static IApplicationBuilder UseRamshaRequestLocalization(this IApplicationBuilder app,
+            Action<RequestLocalizationOptions>? optionsAction = null)
+        {
+            app.ApplicationServices
+                .GetRequiredService<IRamshaRequestLocalizationOptionsProvider>()
+                .InitializeOptions(optionsAction);
+
+            return app.UseMiddleware<RamshaRequestLocalizationMiddleware>();
+        }
+
     }
 }

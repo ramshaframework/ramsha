@@ -1,6 +1,6 @@
-﻿using System.Reflection;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Ramsha.Localization;
 using Ramsha.Security;
 using Ramsha.Settings;
 
@@ -12,6 +12,7 @@ public class CommonDomainModule : RamshaModule
     {
         base.Register(context);
         context
+        .DependsOn<LocalizationModule>()
         .DependsOn<SecurityModule>()
         .DependsOn<SettingsModule>();
 
