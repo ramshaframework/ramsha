@@ -4,7 +4,7 @@ using Ramsha.Localization.Abstractions;
 
 namespace Ramsha.Localization;
 
-public class LocalizationModule:RamshaModule
+public class LocalizationModule : RamshaModule
 {
     public override void Register(RegisterContext context)
     {
@@ -15,5 +15,7 @@ public class LocalizationModule:RamshaModule
     {
         base.BuildServices(context);
         context.Services.AddRamshaLocalizationServices();
+
+        context.Services.AddTransient<ILocalizationResourceProvider, JsonLocalizationResourceProvider>();
     }
 }

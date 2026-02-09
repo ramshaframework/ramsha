@@ -43,9 +43,10 @@ builder.Services.Configure<RamshaLocalizationOptions>(options =>
     options.Resources.Add<AppResource>()
     .SetPath("App");
 
-    options.Resources.Add<TestController>()
-    .Extend<AppResource>();
-    options.SupportedLanguages = [new("ar", "ar")];
+    options.Resources.Add<AdditionalResource>()
+    .Extend<AppResource>().SetPath("Additional");
+
+    options.SupportedLanguages = [new("ar", "ar"), new("en", "en")];
 });
 
 var app = builder.Build();

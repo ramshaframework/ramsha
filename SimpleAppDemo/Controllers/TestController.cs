@@ -4,10 +4,11 @@ using Ramsha;
 using Ramsha.AspNetCore.Mvc;
 using Ramsha.Identity.Domain;
 using SimpleAppDemo.Identity;
+using SimpleAppDemo.Resources;
 
 namespace SimpleAppDemo.Controllers
 {
-    public class TestController(IStringLocalizer<TestController> stringLocalizer,IIdentityUserRepository<AppUser,int> repository):RamshaApiController
+    public class TestController(IStringLocalizer<AdditionalResource> stringLocalizer, IIdentityUserRepository<AppUser, int> repository) : RamshaApiController
     {
 
         [HttpGet]
@@ -20,13 +21,13 @@ namespace SimpleAppDemo.Controllers
         [HttpPost]
         public async Task<ActionResult<List<UserDto>>> GetPaged(PaginationParams paginationParams)
         {
-           return RamshaResult( await repository.GetPagedAsync(
-            q=>q.Where(x=> x.Id > 1),
-            paginationParams,
-            u => new UserDto(u.Id,u.UserName)));
+            return RamshaResult(await repository.GetPagedAsync(
+             q => q.Where(x => x.Id > 1),
+             paginationParams,
+             u => new UserDto(u.Id, u.UserName)));
         }
     }
 
 
-    public record UserDto(int Id,string UserName);
+    public record UserDto(int Id, string UserName);
 }

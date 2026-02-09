@@ -8,4 +8,9 @@ public class RamshaLocalizationOptions
     public string ResourcesPath { get; set; } = "Resources";
     public LanguageInfo DefaultLanguage { get; set; } = new("ar", "ar");
     public LanguageInfo[] SupportedLanguages { get; set; } = [new("ar", "ar"), new("en", "en")];
+    public ITypeList<ILocalizationResourceProvider> ResourceProviders { get; }
+    public RamshaLocalizationOptions()
+    {
+        ResourceProviders = new TypeList<ILocalizationResourceProvider>();
+    }
 }

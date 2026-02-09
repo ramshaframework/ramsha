@@ -12,7 +12,11 @@ public class ResourceDefinition
     private readonly List<string> _extends = [];
     public IReadOnlyList<string> Extends => _extends.AsReadOnly();
 
-
+    public string GetPathOrDefault(string? prefix = null)
+    {
+        var path = Path ?? Name.Split('.').Last();
+        return prefix is not null ? System.IO.Path.Combine(prefix, path) : path;
+    }
 
     private ResourceDefinition()
     {
