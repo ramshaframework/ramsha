@@ -167,6 +167,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramsha.Localization", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramsha.Localization.Abstractions", "src\framework\localization\Ramsha.Localization.Abstractions\Ramsha.Localization.Abstractions.csproj", "{C99629EA-BE68-4AFF-87F9-2C4F82EB8432}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "translations", "translations", "{7B463A1E-6613-4714-4BCE-C6EC636B6323}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1003,5 +1005,6 @@ Global
 		{849E2990-AC7F-3F97-FDCA-FEC28DC99F7F} = {E0AD1809-C64F-3D39-45E0-E424261CE16D}
 		{320C9F84-7E2E-4639-BB6C-2B3D6F5D4CC8} = {849E2990-AC7F-3F97-FDCA-FEC28DC99F7F}
 		{C99629EA-BE68-4AFF-87F9-2C4F82EB8432} = {849E2990-AC7F-3F97-FDCA-FEC28DC99F7F}
+		{7B463A1E-6613-4714-4BCE-C6EC636B6323} = {EC447DCF-ABFA-6E24-52A5-D7FD48A5C558}
 	EndGlobalSection
 EndGlobal

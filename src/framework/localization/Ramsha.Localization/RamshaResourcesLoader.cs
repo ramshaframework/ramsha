@@ -43,11 +43,15 @@ public class RamshaResourcesLoader : IRamshaResourcesLoader
             ? _options.DefaultLanguage.Culture
             : culture.Name;
 
-        var cacheKey = $"{resource.Name}-{cultureName}";
+        var resources = ResolveResourceHierarchy(resource);
+
+        var cacheKey = $"{resource.Name}-{cultureName}-{includeParents}";
 
         return await _cache.GetOrCreateAsync(
             cacheKey,
-            async (cancellationToken) => await LoadFromStoresAsync(resource, culture, includeParents),
+            async (cancellationToken) =>
+             await LoadFromStoresAsync(resource, resources, culture, includeParents)
+            ,
             new RamshaCacheEntryOptions
             {
                 Expiration = _options.ResourcesCacheExpiration,
@@ -55,19 +59,21 @@ public class RamshaResourcesLoader : IRamshaResourcesLoader
             },
             [
             LocalizationResourcesCacheTag,
-             $"{ResourceTagPrefix}{resource.Name}",
-             $"{CultureTagPrefix}{cultureName}"]
+             ResourceTagPrefix+resource.Name,
+             CultureTagPrefix+cultureName,
+             ..resources.Select(x=> ResourceTagPrefix+x.Name)
+             ]
         );
     }
 
     public async Task<Dictionary<string, string>> LoadFromStoresAsync(
         ResourceDefinition resource,
+        IReadOnlyList<ResourceDefinition> resources,
         CultureInfo culture,
         bool includeParents)
     {
         var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        var resources = ResolveResourceHierarchy(resource);
         var stores = _lazyStores.Value;
         var currentCulture = culture;
 
@@ -75,7 +81,9 @@ public class RamshaResourcesLoader : IRamshaResourcesLoader
         {
             foreach (var store in stores)
             {
-                var filteredResources = resources.Where(res => !ShouldSkipStore(store.Name, res.Stores.ToList())).ToList();
+                var filteredResources = resources.Where(res => !ShouldSkipStore(store.GetName(), res.Stores.ToList())).ToList();
+                if (filteredResources.Count == 0)
+                    continue;
 
                 await store.FillAsync(result, resource, filteredResources, currentCulture.Name);
             }
@@ -140,7 +148,7 @@ public class RamshaResourcesLoader : IRamshaResourcesLoader
             .Select(type => (_serviceProvider.GetRequiredService(type) as ILocalizationResourceStore)!)
             .ToList();
 
-        var multipleStores = stores.GroupBy(p => p.Name).FirstOrDefault(x => x.Count() > 1);
+        var multipleStores = stores.GroupBy(p => p.GetName()).FirstOrDefault(x => x.Count() > 1);
         if (multipleStores != null)
         {
             throw new Exception($"Duplicate LocalizationResource stores name detected");

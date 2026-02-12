@@ -1,17 +1,32 @@
 using System;
+using Ramsha.Common.Domain;
 using Ramsha.Localization;
+using SimpleAppDemo.LocalizationModule;
 
 namespace SimpleAppDemo;
 
-public class EfCoreLocalizationResourcesStore(ILogger<EfCoreLocalizationResourcesStore> logger) : ILocalizationResourceStore
+public sealed class EfCoreLocalizationResourcesStore(IRepository<LocalizationText> repository)
+    : LocalizationResourceStore("db")
 {
-    public string Name => "ef";
-
-    public Task FillAsync(Dictionary<string, string> result,
+    public override async Task FillAsync(
+        Dictionary<string, string> result,
         ResourceDefinition rootResource,
-        IReadOnlyList<ResourceDefinition> resourceHierarchy, string culture, CancellationToken cancellationToken = default)
+        IReadOnlyList<ResourceDefinition> resourceHierarchy,
+        string culture,
+        CancellationToken cancellationToken = default)
     {
-        logger.LogInformation("EfCoreLocalizationResourcesStore returning empty dic");
-        return Task.FromResult<IDictionary<string, string>>(new Dictionary<string, string>());
+        var resourceNames = resourceHierarchy
+            .Select(r => r.Name)
+            .ToList();
+
+        var texts = await repository
+            .GetListAsync(x =>
+                resourceNames.Contains(x.ResourceName) &&
+                x.Culture == culture);
+
+        foreach (var text in texts)
+        {
+            result[text.Key] = text.Value;
+        }
     }
 }

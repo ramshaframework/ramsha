@@ -1,11 +1,9 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Nito.AsyncEx;
 using Ramsha.Localization;
-using Ramsha.Localization.Abstractions;
 
 namespace Ramsha.AspNetCore;
 
@@ -40,15 +38,14 @@ public class RamshaRequestLocalizationOptionsProvider :
                     using (var serviceScope = _serviceProviderFactory.CreateScope())
                     {
                         var localizationsOptions = serviceScope.ServiceProvider.GetRequiredService<IOptions<RamshaLocalizationOptions>>().Value;
+                        var languagesProvider = serviceScope.ServiceProvider.GetRequiredService<ILocalizationLanguagesProvider>();
 
-                        LanguageInfo[] languages = localizationsOptions.SupportedLanguages;
-                        var defaultLanguage = localizationsOptions.DefaultLanguage;
+                        var languages = await languagesProvider.GetSupportedLanguagesAsync();
 
                         var options = !languages.Any()
                             ? new RequestLocalizationOptions()
                             : new RequestLocalizationOptions
                             {
-                                DefaultRequestCulture = new RequestCulture(defaultLanguage.Culture, defaultLanguage.UiCulture),
                                 SupportedCultures = languages
                                     .Select(l => l.Culture)
                                     .Distinct()

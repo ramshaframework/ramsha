@@ -28,6 +28,8 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddSingleton<IRamshaResourcesLoader, RamshaResourcesLoader>();
+        services.AddTransient<ILocalizationLanguagesProvider, ConfigurationLocalizationLanguagesProvider>();
+        services.AddTransient<IResourcesDefinitionsProvider, ConfigurationLocalizationResourcesProvider>();
 
         return services;
     }

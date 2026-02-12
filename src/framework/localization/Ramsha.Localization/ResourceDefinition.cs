@@ -36,32 +36,6 @@ public class ResourceDefinition
         return this;
     }
 
-
-    public ResourceDefinition AddStore(string storeName)
-    {
-        if (string.IsNullOrWhiteSpace(storeName))
-            throw new ArgumentException("store name cannot be null or empty", nameof(storeName));
-
-        if (!_stores.Contains(storeName))
-        {
-            _stores.Add(storeName);
-        }
-        return this;
-    }
-
-    public ResourceDefinition RemoveStore(params string[] storesNames)
-    {
-        foreach (var name in storesNames)
-        {
-            _stores.Remove(name);
-        }
-        return this;
-    }
-
-
-
-
-
     public ResourceDefinition SetPath(string path)
     {
         Path = path;

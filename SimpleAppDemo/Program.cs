@@ -29,12 +29,12 @@ var ramsha = builder.Services.AddRamsha(ramsha =>
     });
 });
 
-builder.Services.AddRamshaDbContext<AppDbContext>();
+builder.Services.AddRamshaDbContext<AppDbContext>(options => options.AddDefaultRepositories(true));
 
 builder.Services.Configure<RamshaLocalizationOptions>(options =>
 {
     options.Resources.Add<AppResource>()
-    .SetPath("App").RemoveStore("ef");
+    .SetPath("App");
 
     options.Resources.Add<AdditionalResource>()
     .Extend<AppResource>().SetPath("Additional");

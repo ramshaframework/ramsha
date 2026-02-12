@@ -6,10 +6,14 @@ using Ramsha.Caching;
 namespace Ramsha.Localization;
 
 public sealed class JsonLocalizationResourcesStore
-    : ILocalizationResourceStore, IDisposable
+    : LocalizationResourceStore, IDisposable
 {
     public string Name => "j";
     private readonly Dictionary<string, FileSystemWatcher> _watchers = new();
+    private readonly Dictionary<string, DateTime> _lastChanges = new();
+    private readonly object _debounceLock = new();
+    private static readonly TimeSpan _debounceWindow = TimeSpan.FromMilliseconds(500);
+
     private readonly RamshaLocalizationOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ILogger _logger;
@@ -17,7 +21,7 @@ public sealed class JsonLocalizationResourcesStore
     public JsonLocalizationResourcesStore(
         IOptions<RamshaLocalizationOptions> options,
         ILogger<JsonLocalizationResourcesStore> logger,
-        IRamshaCache ramshaCache)
+        IRamshaCache ramshaCache) : base("j")
     {
         _cache = ramshaCache;
         _options = options.Value;
@@ -30,7 +34,7 @@ public sealed class JsonLocalizationResourcesStore
         };
     }
 
-    public async Task FillAsync(
+    public override async Task FillAsync(
         Dictionary<string, string> result,
         ResourceDefinition rootResource,
         IReadOnlyList<ResourceDefinition> resourceHierarchy,
@@ -67,11 +71,11 @@ public sealed class JsonLocalizationResourcesStore
             }
         }
 
-        SetupFileWatchers(rootResource, resourceHierarchy, culture);
+        SetupFileWatchers(resourceHierarchy, culture);
 
     }
 
-    private void SetupFileWatchers(ResourceDefinition rootResource, IReadOnlyList<ResourceDefinition> resourceHierarchy, string culture)
+    private void SetupFileWatchers(IReadOnlyList<ResourceDefinition> resourceHierarchy, string culture)
     {
         foreach (var resource in resourceHierarchy)
         {
@@ -87,10 +91,10 @@ public sealed class JsonLocalizationResourcesStore
                     EnableRaisingEvents = true
                 };
 
-                watcher.Changed += (sender, e) => OnFileChanged(sender, e, rootResource, resource, culture);
-                watcher.Created += (sender, e) => OnFileChanged(sender, e, rootResource, resource, culture);
-                watcher.Deleted += (sender, e) => OnFileChanged(sender, e, rootResource, resource, culture);
-                watcher.Renamed += (sender, e) => OnFileChanged(sender, e, rootResource, resource, culture);
+                watcher.Changed += (sender, e) => OnFileChanged(sender, e, resource);
+                watcher.Created += (sender, e) => OnFileChanged(sender, e, resource);
+                watcher.Deleted += (sender, e) => OnFileChanged(sender, e, resource);
+                watcher.Renamed += (sender, e) => OnFileChanged(sender, e, resource);
 
                 _watchers[path] = watcher;
                 _logger.LogInformation("Watching: {Path} for resource {Resource}", path, resource.Name);
@@ -110,24 +114,57 @@ public sealed class JsonLocalizationResourcesStore
 
 
 
-    private async void OnFileChanged(object _, FileSystemEventArgs e, ResourceDefinition rootResource, ResourceDefinition changedResource, string culture)
+    private void OnFileChanged(
+     object? _,
+     FileSystemEventArgs e,
+     ResourceDefinition changedResource)
     {
         if (!e.Name.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             return;
 
+        lock (_debounceLock)
+        {
+            var now = DateTime.UtcNow;
+
+            if (_lastChanges.TryGetValue(e.FullPath, out var lastChange))
+            {
+                if (now - lastChange < _debounceWindow)
+                {
+                    return;
+                }
+            }
+
+            _lastChanges[e.FullPath] = now;
+        }
+
+        _ = HandleFileChangeAsync(e, changedResource);
+    }
+
+    private async Task HandleFileChangeAsync(
+    FileSystemEventArgs e,
+    ResourceDefinition changedResource)
+    {
         try
         {
-            _logger.LogInformation("File changed: {File} , clearing cache for root resource {RootResource}, changed resource {ChangedResource}",
-             e.Name, rootResource.Name, changedResource.Name);
+            await Task.Delay(200);
 
-            var cacheKey = $"{rootResource.Name}-{culture}";
-            await _cache.RemoveAsync(cacheKey);
+            _logger.LogInformation(
+                "File changed: {File} , clearing cache , changed resource {ChangedResource}",
+                e.Name,
+                changedResource.Name);
+
+            await _cache.RemoveByTagAsync(RamshaResourcesLoader.ResourceTagPrefix + changedResource.Name);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error clearing cache after file change for resource {Resource}", changedResource.Name);
+            _logger.LogError(
+                ex,
+                "Error clearing cache after file change for resource {Resource}",
+                changedResource.Name);
         }
     }
+
+
 
 
     public void Dispose()

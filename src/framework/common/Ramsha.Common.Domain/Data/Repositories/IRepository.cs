@@ -12,10 +12,10 @@ where TEntity : IEntity
 {
     Task<int> GetCountAsync();
     Task<int> GetCountAsync(Expression<Func<TEntity, bool>> criteria);
-    Task DeleteAsync(TEntity entity);
-    Task DeleteRangeAsync(IEnumerable<TEntity> entities);
+    Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default);
+    Task DeleteRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
 
-    Task<TEntity?> AddAsync(TEntity entity);
+    Task<TEntity?> AddAsync(TEntity entity, CancellationToken cancellationToken = default);
     Task<List<TEntity>> GetListAsync();
     Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> criteria, params Expression<Func<TEntity, object>>[] includes);
     Task<List<TEntity>> GetListAsync(params Expression<Func<TEntity, object>>[] includes);
@@ -23,9 +23,9 @@ where TEntity : IEntity
     Task<IQueryable<TEntity>> GetQueryableAsync();
 
     Task<PagedResult<TEntity>> GetPagedAsync(PaginationParams paginationParams);
-    Task<PagedResult<T>> GetPagedAsync<T>(PaginationParams paginationParams,Expression<Func<TEntity,T>> mapping);
-    Task<PagedResult<TEntity>> GetPagedAsync(Func<IQueryable<TEntity>,IQueryable<TEntity>> queryAction,PaginationParams paginationParams);
-    Task<PagedResult<T>> GetPagedAsync<T>(Func<IQueryable<TEntity>,IQueryable<TEntity>> queryAction, PaginationParams paginationParams,Expression<Func<TEntity,T>> mapping);
+    Task<PagedResult<T>> GetPagedAsync<T>(PaginationParams paginationParams, Expression<Func<TEntity, T>> mapping);
+    Task<PagedResult<TEntity>> GetPagedAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>> queryAction, PaginationParams paginationParams);
+    Task<PagedResult<T>> GetPagedAsync<T>(Func<IQueryable<TEntity>, IQueryable<TEntity>> queryAction, PaginationParams paginationParams, Expression<Func<TEntity, T>> mapping);
 
 }
 
@@ -33,7 +33,7 @@ public interface IRepository<TEntity, TId> : IRepository<TEntity>
 where TId : IEquatable<TId>
 where TEntity : IEntity<TId>
 {
-    Task<bool> DeleteAsync(TId id);
+    Task<bool> DeleteAsync(TId id, CancellationToken cancellationToken = default);
     Task<bool> IsExist(TId id);
     Task<TEntity?> FindAsync(TId id);
     Task<TEntity?> FindAsync(TId id, params Expression<Func<TEntity, object>>[] includes);

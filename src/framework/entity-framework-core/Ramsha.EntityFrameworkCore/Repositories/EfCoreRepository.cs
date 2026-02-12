@@ -110,12 +110,12 @@ where TEntity : class, IEntity
       });
     }
 
-    public virtual async Task<TEntity?> AddAsync(TEntity entity)
+    public virtual async Task<TEntity?> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
    {
        var context = await GetDbContextAsync();
-       var entry = await context.Set<TEntity>().AddAsync(entity);
+       var entry = await context.Set<TEntity>().AddAsync(entity, cancellationToken);
        return entry.Entity;
    });
 
@@ -137,7 +137,7 @@ where TEntity : class, IEntity
 
     }
 
-    public async Task DeleteAsync(TEntity entity)
+    public async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         await UnitOfWork(async () =>
    {
@@ -179,7 +179,7 @@ where TEntity : class, IEntity
 });
     }
 
-    public async Task DeleteRangeAsync(IEnumerable<TEntity> entities)
+    public async Task DeleteRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         await UnitOfWork(async () =>
  {
@@ -193,12 +193,12 @@ where TEntity : class, IEntity
         return await UnitOfWork(async () =>
         {
             var context = await GetDbContextAsync();
-            return  context.Set<TEntity>().AsQueryable();
+            return context.Set<TEntity>().AsQueryable();
         });
     }
 
 
-    public async Task<PagedResult<TEntity>> GetPagedAsync( PaginationParams paginationParams)
+    public async Task<PagedResult<TEntity>> GetPagedAsync(PaginationParams paginationParams)
     {
         var query = await GetQueryableAsync();
 
@@ -208,10 +208,10 @@ where TEntity : class, IEntity
             .Take(paginationParams.PageSize)
             .ToListAsync();
 
-        return RamshaResults.Paged(pagedResult,new RamshaPagedInfo(total,paginationParams.PageSize,paginationParams.PageNumber));
+        return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
     }
 
-    public async Task<PagedResult<T>> GetPagedAsync<T>(PaginationParams paginationParams,Expression<Func<TEntity,T>> mapping)
+    public async Task<PagedResult<T>> GetPagedAsync<T>(PaginationParams paginationParams, Expression<Func<TEntity, T>> mapping)
     {
         var query = await GetQueryableAsync();
         var total = await query.CountAsync();
@@ -221,10 +221,10 @@ where TEntity : class, IEntity
             .Take(paginationParams.PageSize)
             .ToListAsync();
 
-        return RamshaResults.Paged(pagedResult,new RamshaPagedInfo(total,paginationParams.PageSize,paginationParams.PageNumber));
+        return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
     }
 
-    public async Task<PagedResult<TEntity>> GetPagedAsync(Func<IQueryable<TEntity>,IQueryable<TEntity>> queryAction, PaginationParams paginationParams)
+    public async Task<PagedResult<TEntity>> GetPagedAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>> queryAction, PaginationParams paginationParams)
     {
         var query = await GetQueryableAsync();
         queryAction(query);
@@ -234,10 +234,10 @@ where TEntity : class, IEntity
             .Take(paginationParams.PageSize)
             .ToListAsync();
 
-        return RamshaResults.Paged(pagedResult,new RamshaPagedInfo(total,paginationParams.PageSize,paginationParams.PageNumber));
+        return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
     }
 
-    public async Task<PagedResult<T>> GetPagedAsync<T>(Func<IQueryable<TEntity>,IQueryable<TEntity>> queryAction, PaginationParams paginationParams,Expression<Func<TEntity,T>> mapping)
+    public async Task<PagedResult<T>> GetPagedAsync<T>(Func<IQueryable<TEntity>, IQueryable<TEntity>> queryAction, PaginationParams paginationParams, Expression<Func<TEntity, T>> mapping)
     {
         var query = await GetQueryableAsync();
         query = queryAction(query);
@@ -249,7 +249,7 @@ where TEntity : class, IEntity
             .Take(paginationParams.PageSize)
             .ToListAsync();
 
-        return RamshaResults.Paged(pagedResult,new RamshaPagedInfo(total,paginationParams.PageSize,paginationParams.PageNumber));
+        return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
     }
 }
 
@@ -283,7 +283,7 @@ where TEntity : class, IEntity<TId>
 });
     }
 
-    public async Task<bool> DeleteAsync(TId id)
+    public async Task<bool> DeleteAsync(TId id, CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
 {
