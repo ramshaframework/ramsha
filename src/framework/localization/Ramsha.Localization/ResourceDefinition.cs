@@ -8,6 +8,8 @@ public class ResourceDefinition
 {
     public string Name { get; private set; }
     public string? Path { get; private set; }
+    private readonly List<string> _stores = [];
+    public IReadOnlyList<string> Stores => _stores.AsReadOnly();
 
     private readonly List<string> _extends = [];
     public IReadOnlyList<string> Extends => _extends.AsReadOnly();
@@ -18,10 +20,46 @@ public class ResourceDefinition
         return prefix is not null ? System.IO.Path.Combine(prefix, path) : path;
     }
 
-    private ResourceDefinition()
+    public ResourceDefinition WithStores(List<string> storesNames)
     {
-
+        _stores.Clear();
+        _stores.AddRange(storesNames);
+        return this;
     }
+
+    public ResourceDefinition AddStore(params string[] storesNames)
+    {
+        foreach (var name in storesNames)
+        {
+            AddStore(name);
+        }
+        return this;
+    }
+
+
+    public ResourceDefinition AddStore(string storeName)
+    {
+        if (string.IsNullOrWhiteSpace(storeName))
+            throw new ArgumentException("store name cannot be null or empty", nameof(storeName));
+
+        if (!_stores.Contains(storeName))
+        {
+            _stores.Add(storeName);
+        }
+        return this;
+    }
+
+    public ResourceDefinition RemoveStore(params string[] storesNames)
+    {
+        foreach (var name in storesNames)
+        {
+            _stores.Remove(name);
+        }
+        return this;
+    }
+
+
+
 
 
     public ResourceDefinition SetPath(string path)

@@ -4,5 +4,5 @@ namespace Ramsha.Localization;
 
 public interface ILocalizationChangeNotifier
 {
-    Task OnChangeAsync(ResourceDefinition resource, Func<Task> action);
+    Task OnChangeAsync(IReadOnlyList<ResourceDefinition> resourceHierarchy, Func<Task> action);
 }

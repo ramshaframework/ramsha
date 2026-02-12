@@ -16,6 +16,5 @@ public class LocalizationModule : RamshaModule
         base.BuildServices(context);
         context.Services.AddRamshaLocalizationServices();
 
-        context.Services.AddTransient<ILocalizationResourceProvider, JsonLocalizationResourceProvider>();
     }
 }

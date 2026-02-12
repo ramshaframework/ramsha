@@ -2,11 +2,12 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Ramsha.Caching;
 using Ramsha.Localization.Abstractions;
 
 namespace Ramsha.Localization;
 
-public class RamshaStringLocalizerFactory(IOptions<RamshaLocalizationOptions> options, ILogger<RamshaStringLocalizer> logger, IEnumerable<ILocalizationResourceProvider> providers) : IStringLocalizerFactory
+public class RamshaStringLocalizerFactory(IOptions<RamshaLocalizationOptions> options, IRamshaResourcesLoader resourcesLoader) : IStringLocalizerFactory
 {
     private readonly ConcurrentDictionary<string, IStringLocalizer> _localizerCache = new();
     public IStringLocalizer Create(Type resourceSource)
@@ -16,10 +17,8 @@ public class RamshaStringLocalizerFactory(IOptions<RamshaLocalizationOptions> op
 
         return _localizerCache.GetOrAdd(cacheKey, _ =>
             new RamshaStringLocalizer(
-                name,
-                options.Value,
-                providers,
-                logger
+                options.Value.Resources.Get(name),
+                resourcesLoader
             ));
     }
 
@@ -28,10 +27,8 @@ public class RamshaStringLocalizerFactory(IOptions<RamshaLocalizationOptions> op
         var cacheKey = $"{location}.{name}";
         return _localizerCache.GetOrAdd(cacheKey, _ =>
              new RamshaStringLocalizer(
-                name,
-                options.Value,
-                providers,
-                logger
+                options.Value.Resources.Get(name),
+                resourcesLoader
                )
         );
     }

@@ -19,6 +19,10 @@ public interface IRamshaCache
     string tag,
     CancellationToken cancellationToken = default);
 
+    ValueTask RemoveByTagAsync(
+    IEnumerable<string> tags,
+    CancellationToken cancellationToken = default);
+
     ValueTask<T> GetOrCreateAsync<T>(
     string key,
     Func<CancellationToken, ValueTask<T>> factory,
@@ -62,12 +66,18 @@ public class RamshaCache(HybridCache cache) : IRamshaCache
             key,
             factory,
             MapOptions(options),
+            tags,
             cancellationToken: cancellationToken);
     }
 
     public ValueTask RemoveByTagAsync(string tag, CancellationToken cancellationToken = default)
     {
         return cache.RemoveByTagAsync(tag, cancellationToken);
+    }
+
+    public ValueTask RemoveByTagAsync(IEnumerable<string> tags, CancellationToken cancellationToken = default)
+    {
+        return cache.RemoveByTagAsync(tags, cancellationToken);
     }
 
     private static HybridCacheEntryOptions? MapOptions(RamshaCacheEntryOptions? options)

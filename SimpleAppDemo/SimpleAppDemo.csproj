@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="LocalizationModule/" />
     <Folder Include="Pages\Products\" />
   </ItemGroup>
 

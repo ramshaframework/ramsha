@@ -1,16 +1,9 @@
-using System.Globalization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Localization.Routing;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+
 using Ramsha;
-using Ramsha.Common.Domain;
 using Ramsha.Identity.Application;
 using Ramsha.Identity.Domain;
 using Ramsha.Localization;
-using Ramsha.Localization.Abstractions;
-using SimpleAppDemo.Controllers;
+using SimpleAppDemo;
 using SimpleAppDemo.Identity;
 using SimpleAppDemo.Resources;
 
@@ -41,12 +34,14 @@ builder.Services.AddRamshaDbContext<AppDbContext>();
 builder.Services.Configure<RamshaLocalizationOptions>(options =>
 {
     options.Resources.Add<AppResource>()
-    .SetPath("App");
+    .SetPath("App").RemoveStore("ef");
 
     options.Resources.Add<AdditionalResource>()
     .Extend<AppResource>().SetPath("Additional");
 
     options.SupportedLanguages = [new("ar", "ar"), new("en", "en")];
+
+    options.ResourcesStores.Add<EfCoreLocalizationResourcesStore>();
 });
 
 var app = builder.Build();

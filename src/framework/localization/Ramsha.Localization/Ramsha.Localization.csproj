@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../../caching/Ramsha.Caching/Ramsha.Caching.csproj" />
     <ProjectReference Include="../Ramsha.Localization.Abstractions/Ramsha.Localization.Abstractions.csproj" />
   </ItemGroup>
 

@@ -8,13 +8,19 @@ using SimpleAppDemo.Resources;
 
 namespace SimpleAppDemo.Controllers
 {
-    public class TestController(IStringLocalizer<AdditionalResource> stringLocalizer, IIdentityUserRepository<AppUser, int> repository) : RamshaApiController
+    public class TestController(IStringLocalizer<AdditionalResource> addStringLocalizer, IStringLocalizer<AppResource> appStringLocalizer, IIdentityUserRepository<AppUser, int> repository) : RamshaApiController
     {
 
-        [HttpGet]
-        public async Task<ActionResult> GetLocalized()
+        [HttpGet("localize-app")]
+        public async Task<ActionResult> Localize(string key)
         {
-            return Ok(stringLocalizer["hello"]);
+            return Ok(appStringLocalizer[key]);
+        }
+
+        [HttpGet("localize-add")]
+        public async Task<ActionResult> LocalizeAdd(string key)
+        {
+            return Ok(addStringLocalizer[key]);
         }
 
 
