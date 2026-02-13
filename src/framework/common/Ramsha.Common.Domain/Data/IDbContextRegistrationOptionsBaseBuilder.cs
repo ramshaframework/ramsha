@@ -16,8 +16,9 @@ public interface IDbContextRegistrationOptionsBaseBuilder
     IDbContextRegistrationOptionsBaseBuilder AddDefaultRepository(Type entityType);
 
     IDbContextRegistrationOptionsBaseBuilder AddRepository<TEntity, TRepository>();
-    
-    IDbContextRegistrationOptionsBaseBuilder AddRepository<TEntity, TRepositoryInterface, TRepositoryImplementation>();
+
+    IDbContextRegistrationOptionsBaseBuilder AddRepository<TEntity, TRepositoryInterface, TRepositoryImplementation>()
+    where TRepositoryImplementation : TRepositoryInterface;
 
     IDbContextRegistrationOptionsBaseBuilder SetDefaultRepositoryClasses(Type repositoryImplementationType, Type repositoryImplementationTypeWithoutKey);
 

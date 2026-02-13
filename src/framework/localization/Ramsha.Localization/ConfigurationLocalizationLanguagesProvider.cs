@@ -14,6 +14,11 @@ namespace Ramsha.Localization
 
     public class ConfigurationLocalizationLanguagesProvider(IOptions<RamshaLocalizationOptions> options) : ILocalizationLanguagesProvider
     {
+        public Task<LanguageInfo?> GetDefaultLanguage()
+        {
+            return Task.FromResult<LanguageInfo?>(options.Value.DefaultLanguage);
+        }
+
         public Task<IReadOnlyList<LanguageInfo>> GetSupportedLanguagesAsync()
         {
             return Task.FromResult<IReadOnlyList<LanguageInfo>>(options.Value.SupportedLanguages);

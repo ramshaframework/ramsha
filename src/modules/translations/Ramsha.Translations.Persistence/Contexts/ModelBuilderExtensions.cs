@@ -16,6 +16,12 @@ namespace Ramsha.Translations.Persistence
                 entity.HasIndex(x => new { x.Key, x.ResourceName, x.Culture })
                 .IsUnique();
             });
+
+            modelBuilder.Entity<Language>(entity =>
+            {
+                entity.ToTable("RamshaLanguages");
+            });
+
             return modelBuilder;
         }
     }

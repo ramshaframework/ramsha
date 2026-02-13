@@ -16,6 +16,8 @@ where TEntity : IEntity
     Task DeleteRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
 
     Task<TEntity?> AddAsync(TEntity entity, CancellationToken cancellationToken = default);
+
+    Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
     Task<List<TEntity>> GetListAsync();
     Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> criteria, params Expression<Func<TEntity, object>>[] includes);
     Task<List<TEntity>> GetListAsync(params Expression<Func<TEntity, object>>[] includes);

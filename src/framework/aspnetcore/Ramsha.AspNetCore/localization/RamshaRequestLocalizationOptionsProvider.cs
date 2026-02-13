@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Nito.AsyncEx;
@@ -41,21 +42,24 @@ public class RamshaRequestLocalizationOptionsProvider :
                         var languagesProvider = serviceScope.ServiceProvider.GetRequiredService<ILocalizationLanguagesProvider>();
 
                         var languages = await languagesProvider.GetSupportedLanguagesAsync();
+                        var defaultLanguage = await languagesProvider.GetDefaultLanguage();
+
+                        var supportedCultures = languages
+                                    .Select(l => l.Culture)
+                                    .Distinct()
+                                    .Select(c => new CultureInfo(c))
+                                    .ToArray();
 
                         var options = !languages.Any()
                             ? new RequestLocalizationOptions()
                             : new RequestLocalizationOptions
                             {
-                                SupportedCultures = languages
-                                    .Select(l => l.Culture)
-                                    .Distinct()
-                                    .Select(c => new CultureInfo(c))
-                                    .ToArray(),
-                                SupportedUICultures = languages
-                                    .Select(l => l.UiCulture)
-                                    .Distinct()
-                                    .Select(c => new CultureInfo(c))
-                                    .ToArray()
+                                SupportedCultures = supportedCultures,
+                                SupportedUICultures = supportedCultures,
+                                DefaultRequestCulture = new RequestCulture(
+                                    defaultLanguage is not null
+                                     ? new CultureInfo(defaultLanguage.Culture)
+                                    : supportedCultures.First())
                             };
 
                         foreach (var configurator in serviceScope.ServiceProvider

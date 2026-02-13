@@ -3,13 +3,25 @@ using Microsoft.Extensions.Localization;
 using Ramsha;
 using Ramsha.AspNetCore.Mvc;
 using Ramsha.Identity.Domain;
+using Ramsha.Localization;
 using SimpleAppDemo.Identity;
 using SimpleAppDemo.Resources;
 
 namespace SimpleAppDemo.Controllers
 {
-    public class TestController(IStringLocalizer<AdditionalResource> addStringLocalizer, IStringLocalizer<AppResource> appStringLocalizer, IIdentityUserRepository<AppUser, int> repository) : RamshaApiController
+    public class TestController(ILocalizationLanguagesProvider languagesProvider, IStringLocalizer<AdditionalResource> addStringLocalizer, IStringLocalizer<AppResource> appStringLocalizer, IIdentityUserRepository<AppUser, int> repository) : RamshaApiController
     {
+        [HttpGet("defaultLanguage")]
+        public async Task<ActionResult> DefaultLanguage()
+        {
+            return Ok(await languagesProvider.GetDefaultLanguage());
+        }
+
+        [HttpGet("supported-languages")]
+        public async Task<ActionResult> GetSupportedLanguages()
+        {
+            return Ok(await languagesProvider.GetSupportedLanguagesAsync());
+        }
 
         [HttpGet("localize-app")]
         public async Task<ActionResult> Localize(string key)

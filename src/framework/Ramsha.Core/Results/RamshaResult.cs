@@ -18,8 +18,12 @@ public record RamshaResult<T>(RamshaResultStatus Status) : RamshaResult(Status)
     public static implicit operator RamshaResult<T>(T value)
     => new SuccessResult<T>(value);
 
-    public static implicit operator RamshaResult<T>(RamshaErrorResult error)
-    => new RamshaErrorResult<T>(error.Status, error.Code, error.Message, error.Errors, error.Context);
+    public static implicit operator RamshaResult<T>(RamshaErrorResult? error)
+    =>
+     error is not null ? new RamshaErrorResult<T>(error.Status, error.Code, error.Message, error.Errors, error.Context)
+    : new RamshaErrorResult<T>(RamshaResultStatus.Unknown);
+
+
 }
 
 

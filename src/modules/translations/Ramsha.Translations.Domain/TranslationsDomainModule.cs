@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Ramsha.Common.Domain;
 using Ramsha.Localization;
 using Ramsha.Translations.Shared;
@@ -19,10 +20,20 @@ public class TranslationsDomainModule : RamshaModule
     {
         base.BuildServices(context);
         context.Services.AddRamshaDomainManager<TranslationsManager>();
+        context.Services.AddRamshaDomainManager<LanguageManager>();
 
         context.Services.Configure<RamshaLocalizationOptions>(options =>
         {
             options.ResourcesStores.Add<TranslationsResourcesStore>();
+        });
+
+        context.Services.Replace(
+            ServiceDescriptor.Transient<ILocalizationLanguagesProvider, TranslationsLanguagesProvider>()
+            );
+
+        context.Services.Configure<RamshaHooksOptions>(options =>
+        {
+            options.InitHookContributors.Add<TranslationsDomainInitHookContributor>();
         });
     }
 }

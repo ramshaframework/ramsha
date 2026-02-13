@@ -251,6 +251,15 @@ where TEntity : class, IEntity
 
         return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
     }
+
+    public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    {
+        await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            await context.Set<TEntity>().AddRangeAsync(entities, cancellationToken);
+        });
+    }
 }
 
 

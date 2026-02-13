@@ -6,8 +6,12 @@ using Ramsha.Translations.Domain;
 
 namespace Ramsha.Translations.Application
 {
-    public static class TranslationsExtensions
+    public static class MappingsExtensions
     {
+        public static LanguageDto ToDto(this Language language)
+        {
+            return new LanguageDto(language.Id, language.Culture, language.DisplayName);
+        }
         public static TranslationDto ToDto(this Translation translation)
         {
             return new TranslationDto(translation.Key, translation.Value, translation.ResourceName, translation.Culture);

@@ -26,6 +26,7 @@ public class RamshaResourcesLoader : IRamshaResourcesLoader
     public RamshaResourcesLoader(
         IOptions<RamshaLocalizationOptions> options,
         IRamshaCache cache,
+        ILocalizationLanguagesProvider localizationLanguages,
          IServiceProvider serviceProvider)
     {
         _options = options.Value;

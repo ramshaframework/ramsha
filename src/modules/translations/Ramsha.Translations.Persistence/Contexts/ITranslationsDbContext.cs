@@ -11,5 +11,6 @@ namespace Ramsha.Translations.Persistence
     public interface ITranslationsDbContext : IRamshaEFDbContext
     {
         DbSet<Translation> Translations { get; }
+        DbSet<Language> Languages { get; }
     }
 }

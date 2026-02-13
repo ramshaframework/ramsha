@@ -32,5 +32,6 @@ public class TranslationsApplicationModule : RamshaModule
         base.BuildServices(context);
 
         context.Services.AddRamshaService<ITranslationsService, TranslationsService>();
+        context.Services.AddRamshaService<ILanguagesService, LanguagesService>();
     }
 }

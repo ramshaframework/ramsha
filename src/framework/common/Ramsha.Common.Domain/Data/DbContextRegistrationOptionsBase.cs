@@ -139,6 +139,7 @@ public abstract class DbContextRegistrationOptionsBase : IDbContextRegistrationO
     }
 
     public IDbContextRegistrationOptionsBaseBuilder AddRepository<TEntity, TRepositoryInterface, TRepositoryImplementation>()
+    where TRepositoryImplementation : TRepositoryInterface
     {
         var repositoryType = typeof(TRepositoryImplementation);
         var repositoryInterface = typeof(TRepositoryInterface);

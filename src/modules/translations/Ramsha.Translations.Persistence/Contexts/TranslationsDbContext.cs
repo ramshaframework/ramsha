@@ -13,6 +13,8 @@ namespace Ramsha.Translations.Persistence
     {
         public DbSet<Translation> Translations { get; set; }
 
+        public DbSet<Language> Languages { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

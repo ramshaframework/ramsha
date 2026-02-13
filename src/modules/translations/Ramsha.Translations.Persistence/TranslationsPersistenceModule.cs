@@ -20,7 +20,10 @@ public class TranslationsPersistenceModule : RamshaModule
 
         context.Services.AddRamshaDbContext<ITranslationsDbContext, TranslationsDbContext>(options =>
         {
-            options.AddRepository<Translation, ITranslationRepository, EfCoreTranslationRepository>();
+
+            options
+            .AddRepository<Translation, ITranslationRepository, EfCoreTranslationRepository>()
+            .AddRepository<Language, ILanguageRepository, EfCoreLanguageRepository>();
         });
     }
 }
