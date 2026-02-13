@@ -21,7 +21,7 @@ public sealed class JsonLocalizationResourcesStore
     public JsonLocalizationResourcesStore(
         IOptions<RamshaLocalizationOptions> options,
         ILogger<JsonLocalizationResourcesStore> logger,
-        IRamshaCache ramshaCache) : base("j")
+        IRamshaCache ramshaCache) : base("J")
     {
         _cache = ramshaCache;
         _options = options.Value;

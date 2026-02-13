@@ -1,9 +1,9 @@
 ﻿namespace Ramsha;
 
 
-public record PaginationParams(int PageSize,int PageNumber);
+public record PaginationParams(int PageSize = 10, int PageNumber = 1);
 
-public record PagedResult<T>(List<T> Value,RamshaPagedInfo PagedInfo)
+public record PagedResult<T>(List<T> Value, RamshaPagedInfo PagedInfo)
 : SuccessResult<List<T>>(Value), IRamshaPagedResult;
 
 

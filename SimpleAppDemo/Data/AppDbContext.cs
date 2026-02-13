@@ -8,12 +8,12 @@ using Ramsha.Permissions.Persistence;
 using Ramsha.SettingsManagement.Persistence;
 using SimpleAppDemo.Identity;
 using SimpleAppDemo.LocalizationModule;
+using Ramsha.Translations.Persistence;
 
 
 public class AppDbContext(DbContextOptions<AppDbContext> options)
 : RamshaEFDbContext<AppDbContext>(options)
 {
-    public DbSet<LocalizationText> LocalizationTexts { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -21,6 +21,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         modelBuilder
         .ConfigureIdentity<AppUser, RamshaIdentityRole<int>, int>()
         .ConfigurePermissions()
-        .ConfigureSettingsManagement();
+        .ConfigureSettingsManagement()
+        .ConfigureTranslations();
     }
 }

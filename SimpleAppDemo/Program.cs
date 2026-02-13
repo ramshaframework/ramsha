@@ -3,6 +3,7 @@ using Ramsha;
 using Ramsha.Identity.Application;
 using Ramsha.Identity.Domain;
 using Ramsha.Localization;
+using Ramsha.LocalMessaging.Abstractions;
 using SimpleAppDemo;
 using SimpleAppDemo.Identity;
 using SimpleAppDemo.Resources;
@@ -19,7 +20,8 @@ var ramsha = builder.Services.AddRamsha(ramsha =>
     .AddAccountWebAuth()
     .AddSettingsManagement()
     .AddPermissions()
-    .AddEFPostgreSql();
+    .AddEFPostgreSql()
+    .AddTranslations();
 
 
     ramsha.PrepareOptions<RamshaTypeReplacementOptions>(options =>
@@ -41,7 +43,6 @@ builder.Services.Configure<RamshaLocalizationOptions>(options =>
 
     options.SupportedLanguages = [new("ar", "ar"), new("en", "en")];
 
-    options.ResourcesStores.Add<EfCoreLocalizationResourcesStore>();
 });
 
 var app = builder.Build();

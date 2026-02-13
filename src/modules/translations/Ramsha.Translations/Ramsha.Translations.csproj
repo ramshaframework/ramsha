@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+ <Import Project="..\..\..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Ramsha.Translations.Api/Ramsha.Translations.Api.csproj" />
+    <ProjectReference Include="../Ramsha.Translations.Application/Ramsha.Translations.Application.csproj" />
+    <ProjectReference Include="../Ramsha.Translations.Persistence/Ramsha.Translations.Persistence.csproj" />
+  </ItemGroup>
+
+</Project>

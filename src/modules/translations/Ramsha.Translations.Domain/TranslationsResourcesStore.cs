@@ -1,12 +1,9 @@
-using System;
-using Ramsha.Common.Domain;
 using Ramsha.Localization;
-using SimpleAppDemo.LocalizationModule;
 
-namespace SimpleAppDemo;
+namespace Ramsha.Translations.Domain;
 
-public sealed class EfCoreLocalizationResourcesStore(IRepository<LocalizationText> repository)
-    : LocalizationResourceStore("db")
+public class TranslationsResourcesStore(ITranslationRepository repository)
+: LocalizationResourceStore("T")
 {
     public override async Task FillAsync(
         Dictionary<string, string> result,
