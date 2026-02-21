@@ -11,6 +11,8 @@
   <ItemGroup>
       <PackageReference Include="Bogus" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
+      <ProjectReference Include="../src/framework/files/Ramsha.Files/Ramsha.Files.csproj" />
+      <!-- <ProjectReference Include="../src/framework/messaging/Ramsha.DistributedMessaging/Ramsha.DistributedMessaging.csproj" /> -->
       <ProjectReference Include="../src/modules/translations/Ramsha.Translations/Ramsha.Translations.csproj" />
       <ProjectReference Include="..\src\framework\caching\Ramsha.Caching.Redis\Ramsha.Caching.Redis.csproj" />
       

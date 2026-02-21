@@ -80,7 +80,8 @@
      <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2"  />
 
 
-
+    <PackageVersion Include="WolverineFx" Version="5.16.0" />
+    <PackageVersion Include="WolverineFx.RabbitMQ" Version="5.16.0" />
 
 
 

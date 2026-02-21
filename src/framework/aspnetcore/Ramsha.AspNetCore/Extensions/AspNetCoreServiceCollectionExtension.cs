@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Ramsha;
 using Ramsha.AspNetCore;
 using Ramsha.AspNetCore.Security.Claims;
+using Ramsha.Files;
 using Ramsha.Localization;
 using Ramsha.Security.Claims;
 
@@ -35,6 +36,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IRamshaCookieService, RamshaCookieService>();
 
             services.AddSingleton<IRamshaRequestLocalizationOptionsProvider, RamshaRequestLocalizationOptionsProvider>();
+
+
+            services.PostConfigure<RamshaFilesOptions>((options) =>
+            {
+                var env = services.GetRequiredService<IWebHostEnvironment>();
+                options.PublicRootFilesPath ??= env.WebRootPath;
+            });
 
             return services;
         }

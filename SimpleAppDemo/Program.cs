@@ -1,5 +1,6 @@
 
 using Ramsha;
+using Ramsha.Files;
 using Ramsha.Identity.Application;
 using Ramsha.Identity.Domain;
 using Ramsha.Localization;
@@ -22,6 +23,8 @@ var ramsha = builder.Services.AddRamsha(ramsha =>
     .AddPermissions()
     .AddEFPostgreSql()
     .AddTranslations();
+    // .AddModule<DistributedMessagingModule>()
+
 
 
     ramsha.PrepareOptions<RamshaTypeReplacementOptions>(options =>
@@ -30,6 +33,11 @@ var ramsha = builder.Services.AddRamsha(ramsha =>
         options.ReplaceIdentityUserService<AppUserService>();
     });
 });
+
+// builder.Services.ConfigureWolverine(options =>
+// {
+//     options.Discovery.IncludeAssembly(typeof(Program).Assembly);
+// });
 
 builder.Services.AddRamshaDbContext<AppDbContext>(options => options.AddDefaultRepositories(true));
 

@@ -16,7 +16,8 @@ public class AspNetCoreModule : RamshaModule
     public override void Register(RegisterContext context)
     {
         base.Register(context);
-        context.DependsOn<CommonDomainModule>();
+        context
+        .DependsOn<CommonDomainModule>();
     }
 
     public override void BuildServices(BuildServicesContext context)

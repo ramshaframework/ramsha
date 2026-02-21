@@ -374,3 +374,7 @@ dotnet-templates/templates-packages
 
 
 up-dotnet.ps1
+
+src/framework/messaging/Ramsha.DistributedMessaging.Abstractions
+src/framework/messaging/Ramsha.DistributedMessaging
+

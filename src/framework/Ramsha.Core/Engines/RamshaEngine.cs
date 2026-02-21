@@ -13,7 +13,7 @@ public abstract class RamshaEngine : IRamshaEngine
     internal RamshaEngine(IServiceCollection services)
     {
         _services = services;
-        services.AddSingleton(this);
+        services.AddSingleton<IRamshaEngine>(this);
         services.AddSingleton<IModuleContainer>(this);
         ConfigureCoreServices(_services);
     }

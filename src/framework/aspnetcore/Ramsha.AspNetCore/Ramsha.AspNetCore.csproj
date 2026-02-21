@@ -9,7 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\common\Ramsha.Common.Domain\Ramsha.Common.Domain.csproj" />
     <ProjectReference Include="..\..\infrastructure\Ramsha.UnitOfWork.Abstractions\Ramsha.UnitOfWork.Abstractions.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.App"  />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
 </Project>
