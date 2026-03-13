@@ -20,7 +20,7 @@ public class CategoriesController(IRepository<Product> productRepo, IRepository<
         if (UnitOfWorkManager.TryBeginReserved(Ramsha.UnitOfWork.UnitOfWork.UnitOfWorkReservationName, new UnitOfWorkOptions()))
         {
             using var _ = GlobalQueryFilterManager.Disable<IPrice>();
-            categories = await categoryRepo.GetListAsync(includes: x => x.Products);
+            categories = await categoryRepo.GetListAsync([x => x.Products]);
         }
         return Ok(categories);
     }
@@ -41,7 +41,7 @@ public class CategoriesController(IRepository<Product> productRepo, IRepository<
             using var _ = GlobalQueryFilterManager.Disable<IPrice>();
             var products = await productRepo.GetListAsync();
 
-            var category = await categoryRepo.FindAsync(categoryId, x => x.Products);
+            var category = await categoryRepo.FindAsync(categoryId, [x => x.Products]);
             if (category is null)
             {
                 return base.NotFound("no category Found");

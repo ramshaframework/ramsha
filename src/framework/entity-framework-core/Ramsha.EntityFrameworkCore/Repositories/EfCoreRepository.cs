@@ -86,27 +86,30 @@ where TEntity : class, IEntity
     protected virtual async Task<TDbContext> GetDbContextAsync()
     => await DbContextProvider.GetDbContextAsync();
 
-    public virtual async Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> expression, params Expression<Func<TEntity, object>>[] includes)
+    public virtual async Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> expression, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
         {
             var context = await GetDbContextAsync();
             var query = context.Set<TEntity>().AsQueryable();
-            foreach (var include in includes)
+            if (includes is not null)
             {
-                query = query.Include(include);
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
             }
-            return await query.FirstOrDefaultAsync(expression);
+            return await query.FirstOrDefaultAsync(expression, cancellationToken);
         });
 
     }
 
-    public virtual async Task<List<TEntity>> GetListAsync()
+    public virtual async Task<List<TEntity>> GetListAsync(CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
       {
           var context = await GetDbContextAsync();
-          return await context.Set<TEntity>().ToListAsync();
+          return await context.Set<TEntity>().ToListAsync(cancellationToken);
       });
     }
 
@@ -122,17 +125,18 @@ where TEntity : class, IEntity
 
     }
 
-    public async Task<List<TEntity>> GetListAsync(params Expression<Func<TEntity, object>>[] includes)
+    public async Task<List<TEntity>> GetListAsync(IEnumerable<Expression<Func<TEntity, object>>> includes, CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
     {
         var context = await GetDbContextAsync();
         var query = context.Set<TEntity>().AsQueryable();
+
         foreach (var include in includes)
         {
             query = query.Include(include);
         }
-        return await query.ToListAsync();
+        return await query.ToListAsync(cancellationToken);
     });
 
     }
@@ -146,36 +150,38 @@ where TEntity : class, IEntity
    });
     }
 
-    public async Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> criteria, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> criteria, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
    {
        var context = await GetDbContextAsync();
        var query = context.Set<TEntity>().AsQueryable();
-       foreach (var include in includes)
-       {
-           query = query.Include(include);
-       }
-       return await query.Where(criteria).ToListAsync();
+
+       if (includes is not null)
+           foreach (var include in includes)
+           {
+               query = query.Include(include);
+           }
+       return await query.Where(criteria).ToListAsync(cancellationToken);
    });
 
     }
 
-    public async Task<int> GetCountAsync()
+    public async Task<int> GetCountAsync(CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
 {
     var context = await GetDbContextAsync();
-    return await context.Set<TEntity>().CountAsync();
+    return await context.Set<TEntity>().CountAsync(cancellationToken);
 });
     }
 
-    public async Task<int> GetCountAsync(Expression<Func<TEntity, bool>> criteria)
+    public async Task<int> GetCountAsync(Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
 {
     var context = await GetDbContextAsync();
-    return await context.Set<TEntity>().Where(criteria).CountAsync();
+    return await context.Set<TEntity>().Where(criteria).CountAsync(cancellationToken);
 });
     }
 
@@ -198,56 +204,56 @@ where TEntity : class, IEntity
     }
 
 
-    public async Task<PagedResult<TEntity>> GetPagedAsync(PaginationParams paginationParams)
+    public async Task<PagedResult<TEntity>> GetPagedAsync(PaginationParams paginationParams, CancellationToken cancellationToken = default)
     {
         var query = await GetQueryableAsync();
 
-        var total = await query.CountAsync();
+        var total = await query.CountAsync(cancellationToken);
         var pagedResult = await query
             .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
             .Take(paginationParams.PageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
     }
 
-    public async Task<PagedResult<T>> GetPagedAsync<T>(PaginationParams paginationParams, Expression<Func<TEntity, T>> mapping)
+    public async Task<PagedResult<T>> GetPagedAsync<T>(PaginationParams paginationParams, Expression<Func<TEntity, T>> mapping, CancellationToken cancellationToken = default)
     {
         var query = await GetQueryableAsync();
-        var total = await query.CountAsync();
+        var total = await query.CountAsync(cancellationToken);
         var pagedResult = await query
         .Select(mapping)
             .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
             .Take(paginationParams.PageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
     }
 
-    public async Task<PagedResult<TEntity>> GetPagedAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>> queryAction, PaginationParams paginationParams)
+    public async Task<PagedResult<TEntity>> GetPagedAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>> queryAction, PaginationParams paginationParams, CancellationToken cancellationToken = default)
     {
         var query = await GetQueryableAsync();
         queryAction(query);
-        var total = await query.CountAsync();
+        var total = await query.CountAsync(cancellationToken);
         var pagedResult = await query
             .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
             .Take(paginationParams.PageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
     }
 
-    public async Task<PagedResult<T>> GetPagedAsync<T>(Func<IQueryable<TEntity>, IQueryable<TEntity>> queryAction, PaginationParams paginationParams, Expression<Func<TEntity, T>> mapping)
+    public async Task<PagedResult<T>> GetPagedAsync<T>(Func<IQueryable<TEntity>, IQueryable<TEntity>> queryAction, PaginationParams paginationParams, Expression<Func<TEntity, T>> mapping, CancellationToken cancellationToken = default)
     {
         var query = await GetQueryableAsync();
         query = queryAction(query);
 
-        var total = await query.CountAsync();
+        var total = await query.CountAsync(cancellationToken);
         var pagedResult = await query
         .Select(mapping)
             .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
             .Take(paginationParams.PageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
     }
@@ -260,6 +266,68 @@ where TEntity : class, IEntity
             await context.Set<TEntity>().AddRangeAsync(entities, cancellationToken);
         });
     }
+
+    public async Task<IReadOnlyList<TEntity>> ReadOnlyListAsync(CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            return await context.Set<TEntity>()
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+        });
+    }
+
+    public async Task<IReadOnlyList<TEntity>> ReadOnlyListAsync(Expression<Func<TEntity, bool>> criteria, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+
+            if (includes is not null)
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            return await query.Where(criteria)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+        });
+    }
+
+    public async Task<IReadOnlyList<TEntity>> ReadOnlyListAsync(IEnumerable<Expression<Func<TEntity, object>>> includes, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+            return await query.AsNoTracking().ToListAsync(cancellationToken);
+        });
+    }
+
+    public async Task<TEntity?> ReadOnlyAsync(Expression<Func<TEntity, bool>> criteria, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+            if (includes is not null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+            return await query.AsNoTracking()
+            .FirstOrDefaultAsync(criteria, cancellationToken);
+        });
+    }
 }
 
 
@@ -269,26 +337,19 @@ where TId : IEquatable<TId>
 where TEntity : class, IEntity<TId>
 
 {
-    public async Task<TEntity?> FindAsync(TId id)
-    {
-        return await UnitOfWork(async () =>
-{
-    var context = await GetDbContextAsync();
-    return await context.Set<TEntity>().FindAsync(id);
-});
-    }
-
-    public async Task<TEntity?> FindAsync(TId id, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<TEntity?> FindAsync(TId id, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
 {
     var context = await GetDbContextAsync();
     var query = context.Set<TEntity>().AsQueryable();
-    foreach (var include in includes)
-    {
-        query = query.Include(include);
-    }
-    return await query.FirstOrDefaultAsync(x => x.Id.Equals(id));
+
+    if (includes is not null)
+        foreach (var include in includes)
+        {
+            query = query.Include(include);
+        }
+    return await query.FirstOrDefaultAsync(x => x.Id.Equals(id), cancellationToken);
 });
     }
 
@@ -308,13 +369,29 @@ where TEntity : class, IEntity<TId>
 });
     }
 
-    public async Task<bool> IsExist(TId id)
+    public async Task<bool> IsExist(TId id, CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
 {
     var context = await GetDbContextAsync();
-    var existEntity = await context.Set<TEntity>().FindAsync(id);
+    var existEntity = await context.Set<TEntity>().FindAsync(id, cancellationToken);
     return existEntity is not null;
 });
+    }
+
+    public async Task<TEntity?> ReadOnlyAsync(TId id, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+
+            if (includes is not null)
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            return await query.AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id), cancellationToken);
+        });
     }
 }
