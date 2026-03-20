@@ -33,7 +33,7 @@ where TUserToken : RamshaIdentityUserToken<TId>, new()
 where TRole : RamshaIdentityRole<TId, TUserRole, TRoleClaim>, new()
 where TRoleClaim : RamshaIdentityRoleClaim<TId>, new()
 {
-    public IQueryable<TUser> Users 
+    public IQueryable<TUser> Users
     => AsyncHelper.RunSync(userRepository.GetQueryableAsync);
 
     private void ThrowIfUserNull(TUser user)
@@ -64,7 +64,7 @@ where TRoleClaim : RamshaIdentityRoleClaim<TId>, new()
 
         ThrowIfUserNull(user);
 
-        var role = await roleRepository.FindAsync(x => x.Name == roleName);
+        var role = await roleRepository.FindAsync(x => x.NormalizedName == roleName);
         user.AddRole(role.Id);
     }
 
@@ -411,7 +411,7 @@ where TRoleClaim : RamshaIdentityRoleClaim<TId>, new()
             throw new ArgumentNullException(nameof(roleName));
 
 
-        var role = await roleRepository.FindAsync(x => x.Name == roleName, [r => r.Users]);
+        var role = await roleRepository.FindAsync(x => x.NormalizedName == roleName, [r => r.Users]);
 
         var userIds = role?.Users.Select(x => x.UserId) ?? [];
         return await userRepository.GetListAsync(x => userIds.Contains(x.Id));
@@ -446,7 +446,7 @@ where TRoleClaim : RamshaIdentityRoleClaim<TId>, new()
         if (string.IsNullOrEmpty(roleName))
             throw new ArgumentNullException(nameof(roleName));
 
-        var role = await roleRepository.FindAsync(x => x.Name == roleName);
+        var role = await roleRepository.FindAsync(x => x.NormalizedName == roleName);
 
         return user.IsInRole(role.Id);
 
@@ -475,7 +475,7 @@ where TRoleClaim : RamshaIdentityRoleClaim<TId>, new()
         if (string.IsNullOrEmpty(roleName))
             throw new ArgumentNullException(nameof(roleName));
 
-        var role = await roleRepository.FindAsync(x => x.Name == roleName);
+        var role = await roleRepository.FindAsync(x => x.NormalizedName == roleName);
 
 
         user.RemoveRole(role.Id);
