@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Ramsha;
 using Ramsha.AspNetCore.Mvc;
+using Ramsha.Common.Domain;
 using Ramsha.Files;
 using Ramsha.Identity.Domain;
 using Ramsha.Localization;
@@ -12,7 +13,7 @@ namespace SimpleAppDemo.Controllers
 {
 
     public record UploadDto(IFormFile File, string Directory, bool Overwrite = false, bool IsPublic = false);
-    public class TestController(IFileHandler fileHandler, ILocalizationLanguagesProvider languagesProvider, IStringLocalizer<AdditionalResource> addStringLocalizer, IStringLocalizer<AppResource> appStringLocalizer, IIdentityUserRepository<AppUser, int> repository) : RamshaApiController
+    public class TestController(IRepository<Org, int> orgRepository, IRepository<Product, int> productRepository, IRepository<Country, int> countryRepository, IFileHandler fileHandler, ILocalizationLanguagesProvider languagesProvider, IStringLocalizer<AdditionalResource> addStringLocalizer, IStringLocalizer<AppResource> appStringLocalizer, IIdentityUserRepository<AppUser, int> repository) : RamshaApiController
     {
         [HttpPost("file-upload")]
         public async Task<ActionResult<FileStoreResponse>> UploadFile([FromForm] UploadDto uploadDto)
@@ -79,9 +80,88 @@ namespace SimpleAppDemo.Controllers
         public async Task<ActionResult<List<UserDto>>> GetPaged(PaginationParams paginationParams)
         {
             return RamshaResult(await repository.GetPagedAsync(
-             q => q.Where(x => x.Id > 1),
              paginationParams,
-             u => new UserDto(u.Id, u.UserName)));
+             u => new UserDto(u.Id, u.UserName),
+             criteria: x => x.Id > 1
+             ));
+        }
+
+        [HttpPost(nameof(SeedProductIncludeTest))]
+        public async Task<IActionResult> SeedProductIncludeTest(string name)
+        {
+            var demoOrg = new Org { Name = "Demo" };
+
+            await orgRepository.AddAsync(demoOrg, true);
+
+
+            var yemenCountry = new Country { Name = "Yemen", Org = demoOrg };
+            var omanCountry = new Country { Name = "Oman", Org = demoOrg };
+
+            await countryRepository.AddRangeAsync([yemenCountry, omanCountry], true);
+
+
+            List<Inventory> inventories =
+            [
+               new Inventory
+               {
+                Name = name +omanCountry.Name+ "Inventory",
+                Prices=[
+                new Price
+                    {
+                        Value =100,
+                        Discounts = [new PriceDiscount{Value = 1},new PriceDiscount{Value = 2}]
+                    },
+                new Price
+                    {
+                        Value= 200,
+                        Discounts = [new PriceDiscount{Value = 2},new PriceDiscount{Value = 3}]
+                    }
+                ],
+                Country = omanCountry
+               },
+            new Inventory
+               {
+                Name = name +yemenCountry.Name+ "Inventory",
+                  Prices=[
+                new Price
+                    {
+                        Value =300,
+                        Discounts = [new PriceDiscount{Value = 3},new PriceDiscount{Value = 4}]
+                    },
+                new Price
+                    {
+                        Value= 400,
+                        Discounts = [new PriceDiscount{Value = 4},new PriceDiscount{Value = 5}]
+                    }
+                ],
+                Country = yemenCountry
+               },
+            ];
+
+            var product = new Product
+            {
+                Name = name,
+                Inventories = inventories
+            };
+
+            var createdProduct = await productRepository.AddAsync(product, true);
+
+            return Ok(new
+            {
+                createdProduct?.Id
+            });
+
+        }
+
+        [HttpGet(nameof(GetProductIncludeTest))]
+        public async Task<IActionResult> GetProductIncludeTest()
+        {
+            return Ok(await productRepository.GetListAsync(
+                [
+                 p => p.Inventories.Select(x => x.Country.Org),
+                 p => p.Inventories.Select(i=> i.Prices.Select(p=> p.Discounts))
+                ]
+            ));
         }
     }
 

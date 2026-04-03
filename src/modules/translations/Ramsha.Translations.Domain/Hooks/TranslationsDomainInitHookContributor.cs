@@ -14,8 +14,8 @@ namespace Ramsha.Translations.Domain
         {
             var languageRepository = context.ServiceProvider.GetRequiredService<ILanguageRepository>();
 
-            var query = await languageRepository.GetQueryableAsync();
-            if (!query.Any())
+            var count = await languageRepository.GetCountAsync();
+            if (count == 0)
             {
                 var allCultures = CultureInfo.GetCultures(CultureTypes.NeutralCultures);
 

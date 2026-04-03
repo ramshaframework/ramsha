@@ -34,7 +34,7 @@ where TRole : RamshaIdentityRole<TId, TUserRole, TRoleClaim>, new()
 where TRoleClaim : RamshaIdentityRoleClaim<TId>, new()
 {
     public IQueryable<TUser> Users
-    => AsyncHelper.RunSync(userRepository.GetQueryableAsync);
+    => AsyncHelper.RunSync(userRepository.GetQueryAsync);
 
     private void ThrowIfUserNull(TUser user)
     {
