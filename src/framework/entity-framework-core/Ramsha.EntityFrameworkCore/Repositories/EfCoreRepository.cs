@@ -13,8 +13,19 @@ where TEntity : class, IEntity
 {
     [Injectable]
     public IServiceProvider ServiceProvider { get; set; } = default!;
+    protected ISpecificationEvaluator SpecificationEvaluator { get; set; } = EntityFrameworkCore.EfCoreSpecificationEvaluator.Default;
+
     protected IDbContextProvider<TDbContext> DbContextProvider => ServiceProvider.GetLazyRequiredService<IDbContextProvider<TDbContext>>().Value;
     protected IUnitOfWorkManager UnitOfWorkManager => ServiceProvider.GetLazyRequiredService<IUnitOfWorkManager>().Value;
+
+
+    public EFCoreRepository(ISpecificationEvaluator specificationEvaluator)
+    {
+        SpecificationEvaluator = specificationEvaluator;
+    }
+    public EFCoreRepository()
+    {
+    }
     protected Task<T> TransactionalUnitOfWork<T>(Func<Task<T>> action)
     {
         return UnitOfWork(action, true);
@@ -341,6 +352,95 @@ where TEntity : class, IEntity
             return await query.AsNoTracking()
             .FirstOrDefaultAsync(criteria, cancellationToken);
         });
+    }
+
+    public async Task<List<TEntity>> GetListAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
+    {
+        var query = await GetQueryAsync();
+        return await ApplySpecification(query, specification)
+               .ToListAsync(cancellationToken);
+    }
+
+    public Task<List<TEntity>> GetListAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
+    {
+        var spec = new Specification<TEntity>(specBuilder);
+        return GetListAsync(spec, cancellationToken);
+    }
+
+    protected virtual IQueryable<TEntity> ApplySpecification(IQueryable<TEntity> query, ISpecification<TEntity> specification, bool evaluateCriteriaOnly = false)
+    {
+        return SpecificationEvaluator.GetQuery(query, specification, evaluateCriteriaOnly);
+    }
+
+    protected virtual IQueryable<TResult> ApplySpecification<TResult>(IQueryable<TEntity> query, ISpecification<TEntity, TResult> specification)
+    {
+        return SpecificationEvaluator.GetQuery(query, specification);
+    }
+
+    public async Task<int> GetCountAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
+    {
+        var spec = new Specification<TEntity>(specBuilder);
+        return await GetCountAsync(spec, cancellationToken);
+    }
+
+    public async Task<int> GetCountAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
+    {
+        var query = await GetQueryAsync();
+        return await ApplySpecification(query, specification, true)
+               .CountAsync(cancellationToken);
+    }
+
+    public async Task<TEntity?> FindAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
+    {
+        var spec = new Specification<TEntity>(specBuilder);
+        return await FindAsync(spec, cancellationToken);
+    }
+
+    public async Task<TEntity?> FindAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
+    {
+        var query = await GetQueryAsync();
+        return await ApplySpecification(query, specification)
+               .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<TEntity>> ReadOnlyListAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
+    {
+        var query = await GetQueryAsync();
+        return await ApplySpecification(query, specification)
+               .AsNoTracking()
+               .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<TEntity>> ReadOnlyListAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
+    {
+        var spec = new Specification<TEntity>(specBuilder);
+        return await ReadOnlyListAsync(spec, cancellationToken);
+    }
+
+    public async Task<TEntity?> ReadOnlyAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
+    {
+        var query = await GetQueryAsync();
+        return await ApplySpecification(query, specification)
+               .AsNoTracking()
+               .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<TEntity?> ReadOnlyAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
+    {
+        var spec = new Specification<TEntity>(specBuilder);
+        return await ReadOnlyAsync(spec, cancellationToken);
+    }
+
+    public async Task<PagedResult<T>> GetPagedAsync<T>(IPageSpecification<TEntity, T> pageSpecification, CancellationToken cancellationToken = default)
+    {
+        var query = await GetQueryAsync();
+
+        var total = await GetCountAsync(pageSpecification, cancellationToken);
+        var pagedResult = await
+        ApplySpecification(query, pageSpecification)
+            .ToListAsync(cancellationToken);
+
+        return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, pageSpecification.PaginationParams.PageSize, pageSpecification.PaginationParams.PageNumber));
     }
 }
 

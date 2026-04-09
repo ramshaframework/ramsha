@@ -154,17 +154,72 @@ namespace SimpleAppDemo.Controllers
         }
 
         [HttpGet(nameof(GetProductIncludeTest))]
-        public async Task<IActionResult> GetProductIncludeTest()
+        public async Task<IActionResult> GetProductIncludeTest([FromQuery] PaginationParams paginationParams)
         {
-            return Ok(await productRepository.GetListAsync(
-                [
-                 p => p.Inventories.Select(x => x.Country.Org),
-                 p => p.Inventories.Select(i=> i.Prices.Select(p=> p.Discounts))
-                ]
-            ));
+            //var specification = RamshaSpecification
+            //.For<Product>()
+            // .Include(
+            //     [
+            //      p => p.Inventories.Select(x => x.Country.Org),
+            //      p => p.Inventories.Select(i=> i.Prices.Select(p=> p.Discounts))
+            //     ])
+            // .Create();
+
+            return Ok(await productRepository.GetPagedAsync(new ProductPageSpec(paginationParams)));
+
+            // return Ok(await productRepository.GetListAsync(
+            //     [
+            //      p => p.Inventories.Select(x => x.Country.Org),
+            //      p => p.Inventories.Select(i=> i.Prices.Select(p=> p.Discounts))
+            //     ]
+            // ));
         }
+    }
+
+    public class ProductDetailSpec : Specification<Product>
+    {
+        public ProductDetailSpec()
+        {
+            Query.Include(p => p.Inventories)
+               .ThenInclude(x => x.Country)
+               .ThenInclude(x => x.Org)
+               .Include(x => x.Inventories)
+               .ThenInclude(x => x.Prices)
+               .ThenInclude(x => x.Discounts);
+        }
+
+        public static ProductDetailSpec Create()
+        {
+            return new ProductDetailSpec();
+        }
+
+
+
     }
 
 
     public record UserDto(int Id, string UserName);
+
+    public class ProductPageSpec : PageSpecification<Product, ProductDto>
+    {
+        public ProductPageSpec(PaginationParams paginationParams)
+        : base(paginationParams)
+        {
+            Query
+            .Include(p => p.Inventories)
+            .ThenInclude(x => x.Country)
+            .ThenInclude(x => x.Org)
+            .Include(x => x.Inventories)
+            .ThenInclude(x => x.Prices)
+            .ThenInclude(x => x.Discounts)
+            .Select(p => new ProductDto(p.Id, p.Name, p.Inventories.Select(i => new InventoryDto(i.Id, i.Name)).ToList()));
+        }
+    }
+
+    public record ProductDto(int Id, string Name, List<InventoryDto> Inventories);
+    public record InventoryDto(int Id, string Name);
+
+
+
+
 }
