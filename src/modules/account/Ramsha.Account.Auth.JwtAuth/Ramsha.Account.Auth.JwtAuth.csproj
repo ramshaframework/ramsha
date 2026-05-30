@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+   <ProjectReference Include="../Ramsha.Account.Auth.JwtAuth.Contracts/Ramsha.Account.Auth.JwtAuth.Contracts.csproj" />
    <ProjectReference Include="..\..\..\framework\aspnetcore\Ramsha.AspNetCore.Authentication.Jwt\Ramsha.AspNetCore.Authentication.Jwt.csproj" />
     <ProjectReference Include="..\..\jwt\Ramsha.Jwt.Domain\Ramsha.Jwt.Domain.csproj" />
         <ProjectReference Include="..\..\..\framework\aspnetcore\Ramsha.AspNetCore.Mvc\Ramsha.AspNetCore.Mvc.csproj" />

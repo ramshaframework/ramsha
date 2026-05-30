@@ -10,5 +10,6 @@ public class RamshaJwtAuthResponse
     public string[] Role { get; set; }
     public bool IsVerified { get; set; }
     public string AccessToken { get; set; }
+    public DateTime AccessTokenExpiration { get; set; }
     public DateTime RefreshTokenExpiration { get; set; }
 }

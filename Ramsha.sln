@@ -191,6 +191,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{07C99758
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramsha.Files", "src\framework\files\Ramsha.Files\Ramsha.Files.csproj", "{886B583B-1639-4A18-B40B-58A9A78D49FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramsha.Account.Auth.JwtAuth.Contracts", "src\modules\account\Ramsha.Account.Auth.JwtAuth.Contracts\Ramsha.Account.Auth.JwtAuth.Contracts.csproj", "{49292BCA-2D4E-40CE-88F3-CF7792C264F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1065,6 +1067,18 @@ Global
 		{886B583B-1639-4A18-B40B-58A9A78D49FC}.Release|x64.Build.0 = Release|Any CPU
 		{886B583B-1639-4A18-B40B-58A9A78D49FC}.Release|x86.ActiveCfg = Release|Any CPU
 		{886B583B-1639-4A18-B40B-58A9A78D49FC}.Release|x86.Build.0 = Release|Any CPU
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4}.Debug|x64.Build.0 = Debug|Any CPU
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4}.Debug|x86.Build.0 = Debug|Any CPU
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4}.Release|x64.ActiveCfg = Release|Any CPU
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4}.Release|x64.Build.0 = Release|Any CPU
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4}.Release|x86.ActiveCfg = Release|Any CPU
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1159,5 +1173,6 @@ Global
 		{151F971E-3D28-4C81-8830-CD31C899BBCE} = {70E9956B-3470-8432-5039-A81DB1F2C925}
 		{07C99758-4D36-D17D-44CE-EEFD233D5620} = {E0AD1809-C64F-3D39-45E0-E424261CE16D}
 		{886B583B-1639-4A18-B40B-58A9A78D49FC} = {07C99758-4D36-D17D-44CE-EEFD233D5620}
+		{49292BCA-2D4E-40CE-88F3-CF7792C264F4} = {6EE2CD8D-C202-701D-0106-19DABBDFA130}
 	EndGlobalSection
 EndGlobal

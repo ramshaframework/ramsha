@@ -201,6 +201,7 @@ where TJwtRefreshRequest : RamshaJwtRefreshRequest, new()
             Username = user.UserName,
             Role = roles.ToArray(),
             IsVerified = user.EmailConfirmed,
+            AccessTokenExpiration = DateTime.UtcNow.Add(jwtValidationOptions.Value.AccessTokenExpiration),
             RefreshTokenExpiration = refreshTokenExpiration
         };
     }
@@ -215,6 +216,7 @@ where TJwtRefreshRequest : RamshaJwtRefreshRequest, new()
             Username = user.UserName,
             Role = roles.ToArray(),
             IsVerified = user.EmailConfirmed,
+            AccessTokenExpiration = DateTime.UtcNow.Add(jwtValidationOptions.Value.AccessTokenExpiration),
             RefreshTokenExpiration = refreshTokenExpiration
         };
     }
@@ -251,7 +253,7 @@ where TJwtRefreshRequest : RamshaJwtRefreshRequest, new()
             issuer: jwtValidationOptions.Value.Issuer,
             audience: jwtValidationOptions.Value.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(jwtValidationOptions.Value.DurationInMinutes),
+            expires: DateTime.UtcNow.Add(jwtValidationOptions.Value.AccessTokenExpiration),
             signingCredentials: signinCredentials
         );
         var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
