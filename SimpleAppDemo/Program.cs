@@ -10,7 +10,7 @@ using SimpleAppDemo;
 using SimpleAppDemo.Identity;
 using SimpleAppDemo.Resources;
 
-//oy2bs4zhdpy7l5b5qooqgbds26kw3ekelmrtn3d3h6fnha
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,30 +68,7 @@ app.MapDelete("test", () =>
 });
 
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    var orgRepository = services.GetRequiredService<IRepository<Org>>();
 
-    try
-    {
-        List<Org> orgs = [
-            new Org{
-                Name = "test3"
-            },
-            new Org{
-                Name = "test4"
-            }
-        ];
-
-        await orgRepository.AddRangeAsync(orgs, true);
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex.Message);
-    }
-}
 
 
 app.Run();
