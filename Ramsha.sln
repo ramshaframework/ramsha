@@ -183,10 +183,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramsha.Translations.Persist
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramsha.Translations", "src\modules\translations\Ramsha.Translations\Ramsha.Translations.csproj", "{E99766C1-9B78-4D36-A675-295CD5FC8693}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramsha.DistributedMessaging", "src\framework\messaging\Ramsha.DistributedMessaging\Ramsha.DistributedMessaging.csproj", "{C03A6316-2135-416A-9C6A-BF40623DBCD5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramsha.DistributedMessaging.Abstractions", "src\framework\messaging\Ramsha.DistributedMessaging.Abstractions\Ramsha.DistributedMessaging.Abstractions.csproj", "{151F971E-3D28-4C81-8830-CD31C899BBCE}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{07C99758-4D36-D17D-44CE-EEFD233D5620}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramsha.Files", "src\framework\files\Ramsha.Files\Ramsha.Files.csproj", "{886B583B-1639-4A18-B40B-58A9A78D49FC}"
