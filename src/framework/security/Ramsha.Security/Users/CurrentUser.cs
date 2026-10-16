@@ -18,10 +18,10 @@ public class CurrentUser(IPrincipalAccessor accessor) : ICurrentUser
     public bool IsInRole(string roleName)
     => accessor.Principal.HasRole(roleName);
     public Claim? FindClaim(string claimType)
-        => accessor.Principal.FindFirst(claimType);
+        => accessor.Principal?.FindFirst(claimType);
     public Claim[] GetClaims(string claimType)
     => accessor.Principal.FindClaims(claimType);
     public Claim[] GetAllClaims()
-    => [.. accessor.Principal.Claims];
+    => [.. accessor.Principal?.Claims ?? []];
 
 }

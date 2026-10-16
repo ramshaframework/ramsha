@@ -1,5 +1,3 @@
-
-
 using Microsoft.EntityFrameworkCore;
 using Ramsha.EntityFrameworkCore;
 using Ramsha.Identity.Persistence;
@@ -7,14 +5,15 @@ using Ramsha.Identity.Domain;
 using Ramsha.Permissions.Persistence;
 using Ramsha.SettingsManagement.Persistence;
 using SimpleAppDemo.Identity;
-using SimpleAppDemo.LocalizationModule;
 using Ramsha.Translations.Persistence;
 using Ramsha.Common.Domain;
 
 
-public class Org : Entity<int>
+public class Org : Entity<int>, IEntityCreation
 {
     public string Name { get; set; }
+    public string? CreatedBy { get; set; }
+    public DateTime CreationDate { get; set; }
 }
 public class Country : Entity<int>
 {

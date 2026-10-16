@@ -9,7 +9,7 @@ where TCommand : IRamshaCommand<TResult>
 
 }
 
-public interface IRamshaCommandHandler<TCommand> : ICommandHandler<TCommand>, IRamshaRequestHandler
+public interface IRamshaCommandHandler<TCommand> : ICommandHandler<TCommand, IRamshaResult>, IRamshaRequestHandler
 where TCommand : IRamshaCommand
 {
 

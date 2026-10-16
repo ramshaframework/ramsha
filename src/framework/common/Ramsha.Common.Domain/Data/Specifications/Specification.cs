@@ -18,7 +18,7 @@ namespace Ramsha.Common.Domain
         private Dictionary<string, object>? _items;
 
         public ISpecificationBuilder<T> Query => _builder;
-        private readonly ISpecificationBuilder<T> _builder;
+        protected readonly ISpecificationBuilder<T> _builder;
 
         public Specification()
         {
@@ -116,6 +116,18 @@ namespace Ramsha.Common.Domain
         public Expression<Func<T, IEnumerable<TResult>>>? SelectorMany { get; internal set; }
         public new Func<IEnumerable<TResult>, IEnumerable<TResult>>? PostProcessingAction { get; internal set; } = null;
 
+        protected new readonly ISpecificationBuilder<T, TResult> _builder;
+        public Specification()
+        {
+            _builder = new SpecificationBuilder<T, TResult>(this);
+        }
+
+        internal Specification(Action<ISpecificationBuilder<T, TResult>> queryAction)
+        {
+            var builder = new SpecificationBuilder<T, TResult>(this);
+            queryAction(builder);
+            _builder = builder;
+        }
         public new virtual IEnumerable<TResult> Evaluate(IEnumerable<T> entities)
         {
             var evaluator = Evaluator;

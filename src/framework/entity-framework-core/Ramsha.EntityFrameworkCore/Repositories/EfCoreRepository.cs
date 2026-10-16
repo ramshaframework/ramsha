@@ -1,5 +1,6 @@
 
 using System.Linq.Expressions;
+using System.Numerics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Ramsha.Common.Domain;
@@ -178,7 +179,7 @@ where TEntity : class, IEntity
 
     }
 
-    public async Task<int> GetCountAsync(CancellationToken cancellationToken = default)
+    public async Task<int> CountAsync(CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
 {
@@ -187,7 +188,7 @@ where TEntity : class, IEntity
 });
     }
 
-    public async Task<int> GetCountAsync(Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    public async Task<int> CountAsync(Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
 {
@@ -367,6 +368,19 @@ where TEntity : class, IEntity
         return GetListAsync(spec, cancellationToken);
     }
 
+    public async Task<List<T>> GetListAsync<T>(ISpecification<TEntity, T> specification, CancellationToken cancellationToken = default)
+    {
+        var query = await GetQueryAsync();
+        return await ApplySpecification(query, specification)
+               .ToListAsync(cancellationToken);
+    }
+
+    public Task<List<T>> GetListAsync<T>(Action<ISpecificationBuilder<TEntity, T>> specBuilder, CancellationToken cancellationToken = default)
+    {
+        var spec = new Specification<TEntity, T>(specBuilder);
+        return GetListAsync(spec, cancellationToken);
+    }
+
     protected virtual IQueryable<TEntity> ApplySpecification(IQueryable<TEntity> query, ISpecification<TEntity> specification, bool evaluateCriteriaOnly = false)
     {
         return SpecificationEvaluator.GetQuery(query, specification, evaluateCriteriaOnly);
@@ -377,13 +391,13 @@ where TEntity : class, IEntity
         return SpecificationEvaluator.GetQuery(query, specification);
     }
 
-    public async Task<int> GetCountAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
+    public async Task<int> CountAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
     {
         var spec = new Specification<TEntity>(specBuilder);
-        return await GetCountAsync(spec, cancellationToken);
+        return await CountAsync(spec, cancellationToken);
     }
 
-    public async Task<int> GetCountAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
+    public async Task<int> CountAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
     {
         var query = await GetQueryAsync();
         return await ApplySpecification(query, specification, true)
@@ -435,13 +449,421 @@ where TEntity : class, IEntity
     {
         var query = await GetQueryAsync();
 
-        var total = await GetCountAsync(pageSpecification, cancellationToken);
+        var total = await CountAsync(pageSpecification, cancellationToken);
         var pagedResult = await
         ApplySpecification(query, pageSpecification)
             .ToListAsync(cancellationToken);
 
         return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, pageSpecification.PaginationParams.PageSize, pageSpecification.PaginationParams.PageNumber));
     }
+
+    public async Task<IReadOnlyList<T>> ReadOnlyListAsync<T>(ISpecification<TEntity, T> specification, CancellationToken cancellationToken = default)
+    where T : class
+    {
+        var query = await GetQueryAsync();
+        return await ApplySpecification(query, specification)
+               .AsNoTracking()
+               .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<T>> ReadOnlyListAsync<T>(Action<ISpecificationBuilder<TEntity, T>> specBuilder, CancellationToken cancellationToken = default)
+      where T : class
+    {
+        var spec = new Specification<TEntity, T>(specBuilder);
+        return await ReadOnlyListAsync(spec, cancellationToken);
+    }
+
+
+
+
+    public async Task<bool> AnyAsync(CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            return await context.Set<TEntity>().AnyAsync(cancellationToken);
+        });
+    }
+
+    public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            return await context.Set<TEntity>().AnyAsync(criteria, cancellationToken);
+        });
+    }
+
+    public async Task<bool> AnyAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
+    {
+        var query = await GetQueryAsync();
+        return await ApplySpecification(query, specification, true)
+            .AnyAsync(cancellationToken);
+    }
+
+    public async Task<bool> AnyAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
+    {
+        var spec = new Specification<TEntity>(specBuilder);
+        return await AnyAsync(spec, cancellationToken);
+    }
+
+
+    public async Task<bool> AllAsync(Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            return await context.Set<TEntity>().AllAsync(criteria, cancellationToken);
+        });
+    }
+
+    public async Task<bool> AllAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
+    {
+        var query = await GetQueryAsync();
+        return await ApplySpecification(query, specification, true)
+            .AllAsync(_ => true, cancellationToken);
+    }
+
+    public async Task<bool> AllAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
+    {
+        var spec = new Specification<TEntity>(specBuilder);
+        return await AllAsync(spec, cancellationToken);
+    }
+
+
+    public async Task<TResult?> MaxAsync<TResult>(Expression<Func<TEntity, TResult>> selector, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+            return await query.MaxAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<TResult?> MaxAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().Where(criteria);
+            return await query.MaxAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<TResult?> MaxAsync<TResult>(ISpecification<TEntity, TResult> specification, CancellationToken cancellationToken = default)
+    {
+        var query = await GetQueryAsync();
+        var projected = ApplySpecification(query, specification);
+        return await projected.MaxAsync(cancellationToken);
+
+    }
+
+
+    public async Task<TEntity?> MaxByAsync<TKey>(Expression<Func<TEntity, TKey>> keySelector, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+            return query.MaxBy(keySelector);
+
+        });
+    }
+
+    public async Task<TEntity?> MaxByAsync<TKey>(Expression<Func<TEntity, TKey>> keySelector, Expression<Func<TEntity, bool>>? criteria = null, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>()
+            .AsQueryable()
+            .Include(includes);
+
+            if (criteria is not null)
+            {
+                query = query.Where(criteria);
+            }
+
+            return query.MaxBy(keySelector);
+
+        });
+    }
+
+
+
+
+    public async Task<TResult?> MinAsync<TResult>(Expression<Func<TEntity, TResult>> selector, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+            return await query.MinAsync(selector, cancellationToken);
+
+        });
+    }
+
+    public async Task<TResult?> MinAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().Where(criteria);
+            return await query.MinAsync(selector, cancellationToken);
+
+        });
+    }
+
+
+
+
+    public async Task<TEntity?> MinByAsync<TKey>(Expression<Func<TEntity, TKey>> keySelector, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+            return query.MinBy(keySelector);
+
+        });
+    }
+
+    public async Task<TEntity?> MinByAsync<TKey>(Expression<Func<TEntity, TKey>> keySelector, Expression<Func<TEntity, bool>>? criteria = null, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable().Include(includes);
+
+            if (criteria is not null)
+            {
+                query = query.Where(criteria);
+            }
+
+            return query.MinBy(keySelector);
+        });
+    }
+
+
+
+
+    public async Task<decimal> SumAsync(Expression<Func<TEntity, decimal>> selector, CancellationToken cancellationToken = default)
+
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+
+            return await query.SumAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<decimal> SumAsync(Expression<Func<TEntity, decimal>> selector, Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().Where(criteria);
+            return await query.SumAsync(selector, cancellationToken);
+
+        });
+    }
+
+    public async Task<double> SumAsync(Expression<Func<TEntity, double>> selector, CancellationToken cancellationToken = default)
+
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+
+            return await query.SumAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<double> SumAsync(Expression<Func<TEntity, double>> selector, Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().Where(criteria);
+            return await query.SumAsync(selector, cancellationToken);
+
+        });
+    }
+
+    public async Task<float> SumAsync(Expression<Func<TEntity, float>> selector, CancellationToken cancellationToken = default)
+
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+
+            return await query.SumAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<float> SumAsync(Expression<Func<TEntity, float>> selector, Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().Where(criteria);
+            return await query.SumAsync(selector, cancellationToken);
+
+        });
+    }
+
+    public async Task<long> SumAsync(Expression<Func<TEntity, long>> selector, CancellationToken cancellationToken = default)
+
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+
+            return await query.SumAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<long> SumAsync(Expression<Func<TEntity, long>> selector, Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().Where(criteria);
+            return await query.SumAsync(selector, cancellationToken);
+
+        });
+    }
+
+    public async Task<int> SumAsync(Expression<Func<TEntity, int>> selector, CancellationToken cancellationToken = default)
+
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+
+            return await query.SumAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<int> SumAsync(Expression<Func<TEntity, int>> selector, Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().Where(criteria);
+            return await query.SumAsync(selector, cancellationToken);
+
+        });
+    }
+
+
+    public async Task<decimal> AverageAsync(Expression<Func<TEntity, decimal>> selector, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+            return await query.AverageAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<decimal> AverageAsync(Expression<Func<TEntity, decimal>> selector, Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().Where(criteria);
+            return await query.AverageAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<float> AverageAsync(Expression<Func<TEntity, float>> selector, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+            return await query.AverageAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<float> AverageAsync(Expression<Func<TEntity, float>> selector, Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().Where(criteria);
+            return await query.AverageAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<double> AverageAsync(Expression<Func<TEntity, double>> selector, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+            return await query.AverageAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<double> AverageAsync(Expression<Func<TEntity, double>> selector, Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().Where(criteria);
+            return await query.AverageAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<double> AverageAsync(Expression<Func<TEntity, long>> selector, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+            return await query.AverageAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<double> AverageAsync(Expression<Func<TEntity, long>> selector, Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().Where(criteria);
+            return await query.AverageAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<double> AverageAsync(Expression<Func<TEntity, int>> selector, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().AsQueryable();
+            return await query.AverageAsync(selector, cancellationToken);
+        });
+    }
+
+    public async Task<double> AverageAsync(Expression<Func<TEntity, int>> selector, Expression<Func<TEntity, bool>> criteria, CancellationToken cancellationToken = default)
+    {
+        return await UnitOfWork(async () =>
+        {
+            var context = await GetDbContextAsync();
+            var query = context.Set<TEntity>().Where(criteria);
+            return await query.AverageAsync(selector, cancellationToken);
+        });
+    }
+
 }
 
 
@@ -484,7 +906,7 @@ where TEntity : class, IEntity<TId>
 });
     }
 
-    public async Task<bool> IsExist(TId id, CancellationToken cancellationToken = default)
+    public async Task<bool> AnyAsync(TId id, CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
 {
