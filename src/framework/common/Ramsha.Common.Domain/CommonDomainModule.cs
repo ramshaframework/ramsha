@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Ramsha.Authorization;
 using Ramsha.Caching;
 using Ramsha.Files;
 using Ramsha.Localization;
@@ -16,7 +17,7 @@ public class CommonDomainModule : RamshaModule
         context
          .DependsOn<CachingModule>()
         .DependsOn<LocalizationModule>()
-        .DependsOn<SecurityModule>()
+        .DependsOn<AuthorizationModule>()
         .DependsOn<SettingsModule>()
         .DependsOn<FilesModule>();
 

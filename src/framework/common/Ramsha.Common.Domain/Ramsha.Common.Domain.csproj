@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../localization/Ramsha.Localization/Ramsha.Localization.csproj" />
+    <ProjectReference Include="../../security/Ramsha.Authorization/Ramsha.Authorization.csproj" />
     <ProjectReference Include="..\..\infrastructure\Ramsha.UnitOfWork.Abstractions\Ramsha.UnitOfWork.Abstractions.csproj" />
     <ProjectReference Include="..\..\security\Ramsha.Security\Ramsha.Security.csproj" />
       <ProjectReference Include="..\..\..\framework\settings\Ramsha.Settings\Ramsha.Settings.csproj" />

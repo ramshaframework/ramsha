@@ -6,7 +6,7 @@ using Ramsha.Jwt.Domain;
 
 namespace Ramsha.Jwt.Persistence;
 
-public class EFCoreRefreshTokenRepository : EFCoreRepository<IRamshaJwtDbContext, RamshaRefreshToken, long>, IRefreshTokenRepository
+public class EFCoreRefreshTokenRepository : EFCoreRepository<IJwtDbContext, RamshaRefreshToken, long>, IRefreshTokenRepository
 {
     public async Task<List<RamshaRefreshToken>> GetAllActiveForUser(string userId)
     {

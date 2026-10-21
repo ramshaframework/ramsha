@@ -10,7 +10,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddJwtPersistenceServices(this IServiceCollection services)
     {
         services
-       .AddRamshaDbContext<IRamshaJwtDbContext, RamshaJwtDbContext>(options =>
+       .AddRamshaDbContext<IJwtDbContext, JwtDbContext>(options =>
        {
            options.AddRepository<RamshaRefreshToken, IRefreshTokenRepository, EFCoreRefreshTokenRepository>();
        });

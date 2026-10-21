@@ -5,8 +5,8 @@ using Ramsha.Jwt.Domain;
 
 namespace Ramsha.Jwt.Persistence;
 
-[ConnectionString(RamshaJwtDbContextConstants.ConnectionStringName)]
-public interface IRamshaJwtDbContext : IRamshaEFDbContext
+[ConnectionString(JwtDbContextConstants.ConnectionStringName)]
+public interface IJwtDbContext : IRamshaEFDbContext
 {
     DbSet<RamshaRefreshToken> RefreshTokens { get; }
 }

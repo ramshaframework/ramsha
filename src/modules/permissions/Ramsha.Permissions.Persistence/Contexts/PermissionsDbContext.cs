@@ -1,15 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
+using Ramsha.Common.Domain;
 using Ramsha.EntityFrameworkCore;
 using Ramsha.Permissions.Domain;
 
 namespace Ramsha.Permissions.Persistence;
 
+[ConnectionString(PermissionsDbContextConstants.ConnectionStringName)]
 public sealed class PermissionsDbContext(DbContextOptions<PermissionsDbContext> options)
-: RamshaEFDbContext<PermissionsDbContext>(options)
+: RamshaEFDbContext<PermissionsDbContext>(options), IPermissionsDbContext
 {
     public DbSet<Permission> Permissions { get; set; }
 

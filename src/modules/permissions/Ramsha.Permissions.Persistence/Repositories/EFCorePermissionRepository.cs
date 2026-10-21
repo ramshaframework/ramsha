@@ -4,7 +4,7 @@ using Ramsha.Permissions.Domain;
 namespace Ramsha.Permissions.Persistence;
 
 public class EFCorePermissionRepository :
- EFCoreRepository<PermissionsDbContext, Permission, Guid>,
+ EFCoreRepository<IPermissionsDbContext, Permission, Guid>,
  IPermissionRepository
 {
 

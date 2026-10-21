@@ -6,11 +6,11 @@ using Ramsha.Jwt.Domain;
 namespace Ramsha.Jwt.Persistence;
 
 
-[ConnectionString(RamshaJwtDbContextConstants.ConnectionStringName)]
-public class RamshaJwtDbContext(
-    DbContextOptions<RamshaJwtDbContext> options
+[ConnectionString(JwtDbContextConstants.ConnectionStringName)]
+public class JwtDbContext(
+    DbContextOptions<JwtDbContext> options
 )
-: RamshaEFDbContext<RamshaJwtDbContext>(options), IRamshaJwtDbContext
+: RamshaEFDbContext<JwtDbContext>(options), IJwtDbContext
 {
     public DbSet<RamshaRefreshToken> RefreshTokens { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
