@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Ramsha.Permissions.Shared;
 
+
 public record PermissionInfo(string Name, bool IsAssigned);
 public record PermissionDetail(string Name, bool IsAssigned, List<PermissionProviderInfo>? Providers = null);
 

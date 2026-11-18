@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Ramsha.LocalMessaging.Abstractions;
+using Ramsha.Security.Users;
 using Ramsha.UnitOfWork.Abstractions;
 using static Ramsha.RamshaErrorsCodes;
 
@@ -11,6 +12,8 @@ public abstract class RamshaService
     public IServiceProvider ServiceProvider { get; set; } = default!;
     protected IUnitOfWorkManager UnitOfWorkManager => ServiceProvider.GetLazyService<IUnitOfWorkManager>().Value;
     protected IRamshaMediator Mediator => ServiceProvider.GetLazyService<IRamshaMediator>().Value;
+    protected ICurrentUser CurrentUser => ServiceProvider.GetLazyService<ICurrentUser>().Value;
+
 
 
     protected Task<T> TransactionalUnitOfWork<T>(Func<Task<T>> action)

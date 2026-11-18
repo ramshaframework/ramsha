@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Ramsha.Permissions.Contracts.Dtos;
+
+namespace Ramsha.Permissions.Contracts;
+
+public record PermissionDefinitionDto(string Name, string GroupName, string? Description, List<string> Providers);
+
 
 

@@ -28,9 +28,9 @@ public class AccountJwtAuthModule : RamshaModule
 
         context.PrepareOptions<RamshaJwTValidationOptions>(options =>
         {
-            options.SecurityKey = "THIS_DEFAULT_SECRET_KEY";
             options.Audience = "RAMSHA_IDENTITY";
             options.Audience = "RAMSHA_IDENTITY";
+            options.AccessTokenExpiration = TimeSpan.FromHours(1);
         });
     }
 

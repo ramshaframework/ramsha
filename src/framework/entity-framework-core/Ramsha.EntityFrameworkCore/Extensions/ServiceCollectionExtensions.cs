@@ -35,11 +35,11 @@ public static class ServiceCollectionExtensions
 
         services.AddMemoryCache();
 
-        services.TryAddTransient(dbContextType, sp => sp.CreateInstanceWithPropInjection(dbContextType));
+        services.TryAddScoped(dbContextType, sp => sp.CreateInstanceWithPropInjection(dbContextType));
 
-        services.AddTransient(dbContextInterfaceType, sp => sp.GetRequiredService(dbContextType));
-        services.AddTransient(typeof(IRamshaEFDbContext), sp => sp.GetRequiredService(dbContextType));
-        services.AddTransient(typeof(IEFDbContext), sp => sp.GetRequiredService(dbContextType));
+        services.AddScoped(dbContextInterfaceType, sp => sp.GetRequiredService(dbContextType));
+        services.AddScoped(typeof(IRamshaEFDbContext), sp => sp.GetRequiredService(dbContextType));
+        services.AddScoped(typeof(IEFDbContext), sp => sp.GetRequiredService(dbContextType));
 
         var options = new EfDbContextRegistrationOptions(dbContextType, services);
 
@@ -51,12 +51,12 @@ public static class ServiceCollectionExtensions
 
         var dbContextOptionsType = typeof(DbContextOptions<>).MakeGenericType(dbContextType);
 
-        services.TryAddTransient(dbContextOptionsType, sp =>
+        services.TryAddScoped(dbContextOptionsType, sp =>
         {
             return createMethod.Invoke(null, new object?[] { sp });
         });
 
-        services.AddTransient(dbContextInterfaceType, sp => sp.GetRequiredService(dbContextType));
+        services.AddScoped(dbContextInterfaceType, sp => sp.GetRequiredService(dbContextType));
 
 
         foreach (var entry in options.ReplacedDbContextTypes)
@@ -64,7 +64,7 @@ public static class ServiceCollectionExtensions
             var originalDbContextType = entry.Key;
             var targetDbContextType = entry.Value ?? dbContextType;
 
-            services.Replace(ServiceDescriptor.Transient(originalDbContextType, sp =>
+            services.Replace(ServiceDescriptor.Scoped(originalDbContextType, sp =>
             {
                 var provider = sp.GetRequiredService<IEfDbContextTypeProvider>();
                 var resolvedType = provider.GetDbContextType(originalDbContextType);
@@ -91,24 +91,24 @@ public static class ServiceCollectionExtensions
     {
         services.AddMemoryCache();
 
-        services.TryAddTransient(sp => sp.CreateInstanceWithPropInjection<TDbContext>());
+        services.TryAddScoped(sp => sp.CreateInstanceWithPropInjection<TDbContext>());
 
-        services.AddTransient<TDbContextInterface>(sp => sp.GetRequiredService<TDbContext>());
-        services.AddTransient<IRamshaEFDbContext>(sp => sp.GetRequiredService<TDbContext>());
-        services.AddTransient<IEFDbContext>(sp => sp.GetRequiredService<TDbContext>());
+        services.AddScoped<TDbContextInterface>(sp => sp.GetRequiredService<TDbContext>());
+        services.AddScoped<IRamshaEFDbContext>(sp => sp.GetRequiredService<TDbContext>());
+        services.AddScoped<IEFDbContext>(sp => sp.GetRequiredService<TDbContext>());
 
 
         var options = new EfDbContextRegistrationOptions(typeof(TDbContext), services);
 
         optionsBuilder?.Invoke(options);
-        services.TryAddTransient(RamshaDbContextOptionsFactory.Create<TDbContext>);
+        services.TryAddScoped(RamshaDbContextOptionsFactory.Create<TDbContext>);
 
         foreach (var entry in options.ReplacedDbContextTypes)
         {
             var originalDbContextType = entry.Key;
             var targetDbContextType = entry.Value ?? typeof(TDbContext);
 
-            services.Replace(ServiceDescriptor.Transient(originalDbContextType, sp =>
+            services.Replace(ServiceDescriptor.Scoped(originalDbContextType, sp =>
             {
                 var dbContextType = sp.GetRequiredService<IEfDbContextTypeProvider>().GetDbContextType(originalDbContextType);
                 return sp.GetRequiredService(dbContextType);
@@ -132,22 +132,22 @@ public static class ServiceCollectionExtensions
     {
         services.AddMemoryCache();
 
-        services.TryAddTransient(sp => sp.CreateInstanceWithPropInjection<TDbContext>());
+        services.TryAddScoped(sp => sp.CreateInstanceWithPropInjection<TDbContext>());
 
-        services.AddTransient<IRamshaEFDbContext>(sp => sp.GetRequiredService<TDbContext>());
-        services.AddTransient<IEFDbContext>(sp => sp.GetRequiredService<TDbContext>());
+        services.AddScoped<IRamshaEFDbContext>(sp => sp.GetRequiredService<TDbContext>());
+        services.AddScoped<IEFDbContext>(sp => sp.GetRequiredService<TDbContext>());
 
         var options = new EfDbContextRegistrationOptions(typeof(TDbContext), services);
 
         optionsBuilder?.Invoke(options);
-        services.TryAddTransient(RamshaDbContextOptionsFactory.Create<TDbContext>);
+        services.TryAddScoped(RamshaDbContextOptionsFactory.Create<TDbContext>);
 
         foreach (var entry in options.ReplacedDbContextTypes)
         {
             var originalDbContextType = entry.Key;
             var targetDbContextType = entry.Value ?? typeof(TDbContext);
 
-            services.Replace(ServiceDescriptor.Transient(originalDbContextType, sp =>
+            services.Replace(ServiceDescriptor.Scoped(originalDbContextType, sp =>
             {
                 var dbContextType = sp.GetRequiredService<IEfDbContextTypeProvider>().GetDbContextType(originalDbContextType);
                 return sp.GetRequiredService(dbContextType);

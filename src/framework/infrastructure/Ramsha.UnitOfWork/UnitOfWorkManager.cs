@@ -3,18 +3,11 @@ using Ramsha.UnitOfWork.Abstractions;
 
 namespace Ramsha.UnitOfWork;
 
-public class UnitOfWorkManager : IUnitOfWorkManager
+public class UnitOfWorkManager(ICurrentUnitOfWork ambientUnitOfWork, IServiceProvider serviceProvider) : IUnitOfWorkManager
 {
-    public IUnitOfWork? Current => _ambientUnitOfWork.GetActive();
+    public IUnitOfWork? Current => ambientUnitOfWork.GetActive();
 
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly ICurrentUnitOfWork _ambientUnitOfWork;
 
-    public UnitOfWorkManager(IServiceScopeFactory serviceScopeFactory, ICurrentUnitOfWork ambientUnitOfWork)
-    {
-        _serviceScopeFactory = serviceScopeFactory;
-        _ambientUnitOfWork = ambientUnitOfWork;
-    }
 
     public IUnitOfWork Begin(UnitOfWorkOptions options, bool requiresNew = false)
     {
@@ -32,34 +25,27 @@ public class UnitOfWorkManager : IUnitOfWorkManager
 
     private IUnitOfWork CreateNewUnitOfWork()
     {
-        var scope = _serviceScopeFactory.CreateScope();
-        try
-        {
-            var outerUow = _ambientUnitOfWork.UnitOfWork;
 
-            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var outerUow = ambientUnitOfWork.UnitOfWork;
 
-            unitOfWork.SetOuter(outerUow);
+        var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWork>();
 
-            _ambientUnitOfWork.SetUnitOfWork(unitOfWork);
+        unitOfWork.SetOuter(outerUow);
 
-            return unitOfWork;
-        }
-        catch
-        {
-            scope.Dispose();
-            throw;
-        }
+        ambientUnitOfWork.SetUnitOfWork(unitOfWork);
+
+        return unitOfWork;
+
     }
 
     public IUnitOfWork Reserve(string reservationName, bool requiresNew = false)
     {
 
         if (!requiresNew &&
-            _ambientUnitOfWork.UnitOfWork != null &&
-            _ambientUnitOfWork.UnitOfWork.IsReservedFor(reservationName))
+            ambientUnitOfWork.UnitOfWork != null &&
+            ambientUnitOfWork.UnitOfWork.IsReservedFor(reservationName))
         {
-            return new ChildUnitOfWork(_ambientUnitOfWork.UnitOfWork);
+            return new ChildUnitOfWork(ambientUnitOfWork.UnitOfWork);
         }
 
         var unitOfWork = CreateNewUnitOfWork();
@@ -79,7 +65,7 @@ public class UnitOfWorkManager : IUnitOfWorkManager
     public bool TryBeginReserved(string reservationName, UnitOfWorkOptions options)
     {
 
-        var uow = _ambientUnitOfWork.UnitOfWork;
+        var uow = ambientUnitOfWork.UnitOfWork;
 
         while (uow != null && !uow.IsReservedFor(reservationName))
         {

@@ -5,9 +5,13 @@ namespace Ramsha.Common.Domain;
 
 public class DefaultConnectionStringResolver(IOptions<ConnectionStringsOptions> options) : IConnectionStringResolver
 {
+    public string? Resolve(string? connectionStringName = null)
+    {
+        return options.Value.Get(connectionStringName ?? "Default");
+    }
+
     public Task<string?> ResolveAsync(string? connectionStringName = null)
     {
-        var con = options.Value.Get(connectionStringName ?? "Default");
-        return Task.FromResult<string?>(con);
+        return Task.FromResult(Resolve(connectionStringName));
     }
 }

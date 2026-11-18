@@ -18,7 +18,7 @@ public class UnitOfWorkModule : RamshaModule
         context.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
         context.Services.AddSingleton<ICurrentUnitOfWork, CurrentUnitOfWork>();
-        context.Services.AddSingleton<IUnitOfWorkManager, UnitOfWorkManager>();
+        context.Services.AddScoped<IUnitOfWorkManager, UnitOfWorkManager>();
         context.Services.AddSingleton<IUnitOfWorkOptions, UnitOfWorkOptions>();
         context.Configure<GlobalUnitOfWorkOptions>(options =>
         {

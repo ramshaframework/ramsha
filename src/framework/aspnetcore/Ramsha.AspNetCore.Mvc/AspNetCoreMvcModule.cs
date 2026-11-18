@@ -1,4 +1,5 @@
 ﻿
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,18 @@ public class AspNetCoreMvcModule : RamshaModule
 
         context.DependsOn<AspNetCoreModule>();
 
+    }
+
+    public override void Prepare(PrepareContext context)
+    {
+        base.Prepare(context);
+        context.PrepareOptions<IMvcBuilder>(builder =>
+        {
+            builder.AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            });
+        });
     }
 
 

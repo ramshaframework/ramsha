@@ -159,6 +159,11 @@ where TEntity : class, IEntity
    {
        var context = await GetDbContextAsync();
        context.Remove(entity);
+
+       if (autoSave)
+       {
+           await context.SaveChangesAsync(cancellationToken);
+       }
    });
     }
 
@@ -896,12 +901,13 @@ where TEntity : class, IEntity<TId>
     {
         return false;
     }
+
+    context.Remove(entity);
+
     if (autoSave)
     {
         await context.SaveChangesAsync(cancellationToken);
     }
-
-    context.Remove(entity);
     return true;
 });
     }

@@ -17,7 +17,8 @@ public abstract class EFGlobalQueryFilterProvider<TDbContext, TFilter> : IEFGlob
     {
         return ExpressionHelpers.CombineExpressions(
             x => !dbContext.IsFilterEnabled<TFilter>(),
-             CreateFilterExpression(dbContext));
+             CreateFilterExpression(dbContext),
+             ExpressionHelpers.CombineOperator.Or);
     }
 }
 

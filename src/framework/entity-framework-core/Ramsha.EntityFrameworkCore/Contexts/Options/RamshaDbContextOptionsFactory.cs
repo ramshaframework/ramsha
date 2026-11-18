@@ -86,20 +86,14 @@ public static class RamshaDbContextOptionsFactory
         }
 
         var connectionStringName = ConnectionStringAttribute.GetNameOrNull<TDbContext>();
-        var connectionString = ResolveConnectionString<TDbContext>(serviceProvider, connectionStringName).Result;
+        var connectionString = serviceProvider
+        .GetRequiredService<IConnectionStringResolver>()
+        .Resolve(connectionStringName);
+
 
         return new DbContextCreationContext(
             connectionStringName,
             connectionString
         );
-    }
-
-    private static async Task<string> ResolveConnectionString<TDbContext>(
-        IServiceProvider serviceProvider,
-        string connectionStringName)
-    {
-        var connectionStringResolver = serviceProvider.GetRequiredService<IConnectionStringResolver>();
-
-        return await connectionStringResolver.ResolveAsync(connectionStringName);
     }
 }
