@@ -27,11 +27,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<InMemoryPermissionStore>();
         services.TryAddTransient<IPermissionStore>(p => p.GetRequiredService<InMemoryPermissionStore>());
 
-        services.AddSingleton<IPermissionChecker, PermissionChecker>();
-        services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddScoped<IPermissionChecker, PermissionChecker>();
+        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         services.AddSingleton<IAuthorizationPolicyProvider, RamshaAuthorizationPolicyProvider>();
 
-        services.AddSingleton<PermissionProviderResolversManager>();
+        services.AddScoped<PermissionProviderResolversManager>();
 
 
         var permissionResolverInterfaceType = typeof(IPermissionValueResolver);

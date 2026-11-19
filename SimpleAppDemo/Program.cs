@@ -1,5 +1,6 @@
 
 using Ramsha;
+using Ramsha.Authorization;
 using Ramsha.Common.Domain;
 using Ramsha.Files;
 using Ramsha.Identity.Application;
@@ -35,6 +36,11 @@ var ramsha = builder.Services.AddRamsha(ramsha =>
         options.ReplaceIdentityEntities<AppUser, RamshaIdentityRole<int>, int>();
         options.ReplaceIdentityUserService<AppUserService>();
     });
+});
+
+builder.Services.Configure<RamshaPermissionOptions>(options =>
+{
+    options.DefinitionProviders.Add<PermissionDef>();
 });
 
 // builder.Services.ConfigureWolverine(options =>

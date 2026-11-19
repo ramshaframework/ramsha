@@ -37,7 +37,7 @@ internal static class InternalServiceCollectionExtensions
     {
         AddMicrosoftCoreServices(services);
         services.TryAddSingleton<IBootstrapLoggerFactory>(new DefaultBootstrapLoggerFactory());
-        services.AddSingleton<IRamshaHooksManager, RamshaHooksManager>();
+        services.AddScoped<IRamshaHooksManager, RamshaHooksManager>();
 
         services.PrepareOptions<RamshaTypeReplacementOptions>(options => { });
     }

@@ -8,6 +8,7 @@ public class UnitOfWork : IUnitOfWork
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly List<UoWLocalEvent> _localEvents = new();
+    internal Action? ReleaseScope { get; set; }
     private bool _isDispatching;
 
     public void EnqueueLocalEvent(UoWLocalEvent @event)
@@ -116,8 +117,19 @@ public class UnitOfWork : IUnitOfWork
         }
 
         IsDisposed = true;
+        var release = ReleaseScope;
+        ReleaseScope = null;
 
-        DisposeTransactions();
+        try
+        {
+            DisposeTransactions();
+
+        }
+        finally
+        {
+            release?.Invoke();
+        }
+
     }
 
     private void DisposeTransactions()

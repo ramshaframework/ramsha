@@ -1,4 +1,5 @@
 
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -33,23 +34,7 @@ namespace Microsoft.AspNetCore.Builder
 
             if (useRamshaPipeline)
             {
-                var pipeline = app.ApplicationServices.GetService<IRamshaAppPipeline<IApplicationBuilder>>();
-                if (pipeline is not null)
-                {
-                    var contributors = app.ApplicationServices.GetServices<IRamshaPipelineContributor>();
-
-                    foreach (var contributor in contributors)
-                    {
-
-                        using var scope = app.ApplicationServices.CreateScope();
-                        var context = new RamshaPipelineContext(pipeline, scope.ServiceProvider);
-
-                        contributor.ConfigureAsync(context)
-                        .GetAwaiter()
-                       .GetResult();
-                    }
-                    pipeline.Apply(app);
-                }
+                AsyncHelper.RunSync(() => ConfigureRamshaPipelineAsync(app));
             }
         }
 
@@ -73,18 +58,9 @@ namespace Microsoft.AspNetCore.Builder
 
             if (useRamshaPipeline)
             {
-                var pipeline = app.ApplicationServices.GetService<IRamshaAppPipeline<IApplicationBuilder>>();
-                if (pipeline is not null)
+                if (useRamshaPipeline)
                 {
-                    var contributors = app.ApplicationServices.GetServices<IRamshaPipelineContributor>();
-
-                    foreach (var contributor in contributors)
-                    {
-                        using var scope = app.ApplicationServices.CreateScope();
-                        var context = new RamshaPipelineContext(pipeline, scope.ServiceProvider);
-                        await contributor.ConfigureAsync(context);
-                    }
-                    pipeline.Apply(app);
+                    await ConfigureRamshaPipelineAsync(app);
                 }
             }
         }
@@ -131,6 +107,25 @@ namespace Microsoft.AspNetCore.Builder
                 .InitializeOptions(optionsAction);
 
             return app.UseMiddleware<RamshaRequestLocalizationMiddleware>();
+        }
+
+        private static async Task ConfigureRamshaPipelineAsync(IApplicationBuilder app)
+        {
+            var pipe = app.ApplicationServices
+            .GetService<IRamshaAppPipeline<IApplicationBuilder>>();
+
+            if (pipe is null) return;
+
+            await using var scope = app.ApplicationServices.CreateAsyncScope();
+            var services = scope.ServiceProvider;
+            var context = new RamshaPipelineContext(pipe, services);
+
+            foreach (var cr in services.GetServices<IRamshaPipelineContributor>())
+            {
+                await cr.ConfigureAsync(context);
+            }
+
+            pipe.Apply(app);
         }
 
     }

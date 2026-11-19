@@ -15,7 +15,8 @@ public class UnitOfWorkModule : RamshaModule
     public override void BuildServices(BuildServicesContext context)
     {
         base.BuildServices(context);
-        context.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+        context.Services.AddScoped<UnitOfWork>();
+        context.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<UnitOfWork>());
 
         context.Services.AddSingleton<ICurrentUnitOfWork, CurrentUnitOfWork>();
         context.Services.AddScoped<IUnitOfWorkManager, UnitOfWorkManager>();

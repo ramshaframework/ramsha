@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Ramsha;
@@ -153,6 +154,7 @@ namespace SimpleAppDemo.Controllers
 
         }
 
+        [Authorize("products")]
         [HttpGet(nameof(GetProductIncludeTest))]
         public async Task<IActionResult> GetProductIncludeTest([FromQuery] PaginationParams paginationParams)
         {

@@ -3,7 +3,7 @@ using Ramsha.UnitOfWork.Abstractions;
 
 namespace Ramsha.UnitOfWork;
 
-public class UnitOfWorkManager(ICurrentUnitOfWork ambientUnitOfWork, IServiceProvider serviceProvider) : IUnitOfWorkManager
+public class UnitOfWorkManager(ICurrentUnitOfWork ambientUnitOfWork, IServiceScopeFactory scopeFactory) : IUnitOfWorkManager
 {
     public IUnitOfWork? Current => ambientUnitOfWork.GetActive();
 
@@ -17,24 +17,47 @@ public class UnitOfWorkManager(ICurrentUnitOfWork ambientUnitOfWork, IServicePro
             return new ChildUnitOfWork(currentUow);
         }
 
-        var unitOfWork = CreateNewUnitOfWork();
-        unitOfWork.Initialize(options);
+        return CreateNewUnitOfWork(uow => uow.Initialize(options));
 
-        return unitOfWork;
     }
 
-    private IUnitOfWork CreateNewUnitOfWork()
+    private IUnitOfWork CreateNewUnitOfWork(Action<IUnitOfWork> configure)
     {
 
-        var outerUow = ambientUnitOfWork.UnitOfWork;
+        var outer = ambientUnitOfWork.UnitOfWork;
+        var scope = scopeFactory.CreateScope();
 
-        var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWork>();
+        try
+        {
+            var uow = scope.ServiceProvider.GetRequiredService<UnitOfWork>();
 
-        unitOfWork.SetOuter(outerUow);
+            uow.SetOuter(outer);
+            configure(uow);
 
-        ambientUnitOfWork.SetUnitOfWork(unitOfWork);
+            uow.ReleaseScope = () =>
+            {
+                try
+                {
+                    if (ReferenceEquals(ambientUnitOfWork.UnitOfWork, uow))
+                    {
+                        ambientUnitOfWork.SetUnitOfWork(outer);
+                    }
+                }
+                finally
+                {
+                    scope.Dispose();
+                }
+            };
 
-        return unitOfWork;
+            ambientUnitOfWork.SetUnitOfWork(uow);
+            return uow;
+        }
+        catch
+        {
+            scope.Dispose();
+            throw;
+        }
+
 
     }
 
@@ -48,10 +71,7 @@ public class UnitOfWorkManager(ICurrentUnitOfWork ambientUnitOfWork, IServicePro
             return new ChildUnitOfWork(ambientUnitOfWork.UnitOfWork);
         }
 
-        var unitOfWork = CreateNewUnitOfWork();
-        unitOfWork.Reserve(reservationName);
-
-        return unitOfWork;
+        return CreateNewUnitOfWork(uow => uow.Reserve(reservationName));
     }
 
     public void BeginReserved(string reservationName, UnitOfWorkOptions options)

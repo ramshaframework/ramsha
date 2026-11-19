@@ -1,4 +1,5 @@
 using Ramsha;
+using Ramsha.Authorization;
 using Ramsha.EntityFrameworkCore.PostgreSql;
 using Ramsha.Identity;
 
@@ -15,5 +16,19 @@ public class AppModule : RamshaModule
     {
         base.BuildServices(context);
         context.Services.AddRamshaDbContext<AppDbContext>();
+
+
+    }
+}
+
+
+public class PermissionDef : IPermissionDefinitionProvider
+{
+    public void Define(IPermissionDefinitionContext context)
+    {
+        context.Group("products", g =>
+        {
+            g.Permission("products");
+        });
     }
 }

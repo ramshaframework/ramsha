@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ISettingResolver, SettingResolver>();
 
 
-        services.AddSingleton<ISettingValueResolverManager, SettingValueResolverManager>();
+        services.AddScoped<ISettingValueResolverManager, SettingValueResolverManager>();
 
 
         var settingValueResolverInterfaceType = typeof(ISettingValueResolver);

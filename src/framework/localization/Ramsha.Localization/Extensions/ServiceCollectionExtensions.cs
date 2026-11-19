@@ -18,6 +18,14 @@ public static class ServiceCollectionExtensions
         var stores = RamshaTypeHelpers.GetImplementationTypes<LocalizationModule>(resourcesStoreInterfaceType);
         foreach (var store in stores)
         {
+            if (store == typeof(JsonLocalizationResourcesStore))
+            {
+                services.AddSingleton<JsonLocalizationResourcesStore>();
+                services.AddSingleton<ILocalizationResourceStore>(
+                    sp => sp.GetRequiredService<JsonLocalizationResourcesStore>()
+                );
+                continue;
+            }
             services.AddTransient(resourcesStoreInterfaceType, store);
             services.AddTransient(store);
         }

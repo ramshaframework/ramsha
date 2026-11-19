@@ -19,20 +19,18 @@ public class RamshaResourcesLoader : IRamshaResourcesLoader
     public const string LocalizationResourcesCacheTag = "localizationResources";
     public const string ResourceTagPrefix = "resource_";
     public const string CultureTagPrefix = "culture_";
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly IRamshaCache _cache;
     private readonly RamshaLocalizationOptions _options;
-    private readonly Lazy<List<ILocalizationResourceStore>> _lazyStores;
     public RamshaResourcesLoader(
         IOptions<RamshaLocalizationOptions> options,
         IRamshaCache cache,
         ILocalizationLanguagesProvider localizationLanguages,
-         IServiceProvider serviceProvider)
+         IServiceScopeFactory scopeFactory)
     {
         _options = options.Value;
         _cache = cache;
-        _serviceProvider = serviceProvider;
-        _lazyStores = new(GetStores, true);
+        _scopeFactory = scopeFactory;
     }
 
     public async Task<Dictionary<string, string>> LoadAsync(
@@ -75,7 +73,8 @@ public class RamshaResourcesLoader : IRamshaResourcesLoader
     {
         var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        var stores = _lazyStores.Value;
+        await using var scope = _scopeFactory.CreateAsyncScope();
+        var stores = GetStores(scope.ServiceProvider);
         var currentCulture = culture;
 
         while (currentCulture != CultureInfo.InvariantCulture)
@@ -142,11 +141,11 @@ public class RamshaResourcesLoader : IRamshaResourcesLoader
             !allowedStores.Contains(store);
 
 
-    private List<ILocalizationResourceStore> GetStores()
+    private List<ILocalizationResourceStore> GetStores(IServiceProvider serviceProvider)
     {
         var stores = _options
             .ResourcesStores
-            .Select(type => (_serviceProvider.GetRequiredService(type) as ILocalizationResourceStore)!)
+            .Select(type => (ILocalizationResourceStore)serviceProvider.GetRequiredService(type))
             .ToList();
 
         var multipleStores = stores.GroupBy(p => p.GetName()).FirstOrDefault(x => x.Count() > 1);

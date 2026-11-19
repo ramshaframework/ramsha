@@ -8,6 +8,8 @@ namespace Ramsha.Localization;
 public sealed class JsonLocalizationResourcesStore
     : LocalizationResourceStore, IDisposable
 {
+    private readonly object _watcherLock = new();
+    private bool _disposed;
     public string Name => "j";
     private readonly Dictionary<string, FileSystemWatcher> _watchers = new();
     private readonly Dictionary<string, DateTime> _lastChanges = new();
@@ -75,7 +77,21 @@ public sealed class JsonLocalizationResourcesStore
 
     }
 
-    private void SetupFileWatchers(IReadOnlyList<ResourceDefinition> resourceHierarchy, string culture)
+    private void SetupFileWatchers(
+        IReadOnlyList<ResourceDefinition> resourceHierarchy,
+         string culture
+    )
+    {
+        lock (_watcherLock)
+        {
+            if (_disposed)
+                return;
+
+            SetupFileWatchersCore(resourceHierarchy, culture);
+        }
+    }
+
+    private void SetupFileWatchersCore(IReadOnlyList<ResourceDefinition> resourceHierarchy, string culture)
     {
         foreach (var resource in resourceHierarchy)
         {
@@ -169,6 +185,10 @@ public sealed class JsonLocalizationResourcesStore
 
     public void Dispose()
     {
+        if (_disposed) return;
+
+        _disposed = true;
+
         foreach (var watcher in _watchers.Values)
         {
             watcher.EnableRaisingEvents = false;

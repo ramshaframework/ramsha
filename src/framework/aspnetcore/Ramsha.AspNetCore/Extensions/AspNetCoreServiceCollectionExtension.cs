@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var contributors = RamshaTypeHelpers.GetRamshaTypes(pipelineContributorInterfaceType);
             foreach (var contributor in contributors)
             {
-                services.AddSingleton(pipelineContributorInterfaceType, contributor);
+                services.AddScoped(pipelineContributorInterfaceType, contributor);
             }
 
             services.AddTransient<IRamshaCookieService, RamshaCookieService>();
