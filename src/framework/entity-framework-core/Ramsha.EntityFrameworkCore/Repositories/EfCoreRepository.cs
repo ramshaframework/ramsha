@@ -98,6 +98,11 @@ where TEntity : class, IEntity
     protected virtual async Task<TDbContext> GetDbContextAsync()
     => await DbContextProvider.GetDbContextAsync();
 
+
+    protected virtual async Task<DbSet<TEntity>> GetDbSetAsync()
+    => (await DbContextProvider.GetDbContextAsync()).Set<TEntity>();
+
+
     public virtual async Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> expression, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
     {
         return await UnitOfWork(async () =>
@@ -205,92 +210,98 @@ where TEntity : class, IEntity
     public async Task DeleteRangeAsync(IEnumerable<TEntity> entities, bool autoSave = false, CancellationToken cancellationToken = default)
     {
         await UnitOfWork(async () =>
- {
-     var context = await GetDbContextAsync();
-     context.RemoveRange(entities);
-     if (autoSave)
-     {
-         await context.SaveChangesAsync(cancellationToken);
-     }
- });
+    {
+        var context = await GetDbContextAsync();
+        context.RemoveRange(entities);
+        if (autoSave)
+        {
+            await context.SaveChangesAsync(cancellationToken);
+        }
+    });
     }
 
     public async Task<IQueryable<TEntity>> GetQueryAsync()
     {
-        return await UnitOfWork(async () =>
-        {
-            var context = await GetDbContextAsync();
-            return context.Set<TEntity>().AsQueryable();
-        });
+        var dbSet = await GetQueryAsync();
+        return dbSet.AsQueryable();
     }
 
 
 
     public async Task<PagedResult<TEntity>> GetPagedAsync(PaginationParams paginationParams, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
     {
+        return await UnitOfWork(async () =>
+        {
+            var dbContext = await GetDbContextAsync();
+            var query = dbContext.Set<TEntity>();
 
-        var query = await GetQueryAsync();
+            var total = await query.CountAsync(cancellationToken);
+            var pagedResult = await query
+                .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+                .Take(paginationParams.PageSize)
+                .Include(includes)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
 
-        var total = await query.CountAsync(cancellationToken);
-        var pagedResult = await query
-             .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
-             .Take(paginationParams.PageSize)
-             .Include(includes)
-             .AsNoTracking()
-             .ToListAsync(cancellationToken);
-
-        return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
+            return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
+        });
 
     }
 
     public async Task<PagedResult<T>> GetPagedAsync<T>(PaginationParams paginationParams, Expression<Func<TEntity, T>> mapping, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
     {
-        var query = await GetQueryAsync();
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
 
-        var total = await query.CountAsync(cancellationToken);
-        var pagedResult = await query
-            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
-            .Take(paginationParams.PageSize)
-            .Include(includes)
-            .Select(mapping)
-            .ToListAsync(cancellationToken);
+            var total = await query.CountAsync(cancellationToken);
+            var pagedResult = await query
+                .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+                .Take(paginationParams.PageSize)
+                .Include(includes)
+                .Select(mapping)
+                .ToListAsync(cancellationToken);
 
-        return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
-
+            return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
+        });
     }
 
     public async Task<PagedResult<TEntity>> GetPagedAsync(PaginationParams paginationParams, Expression<Func<TEntity, bool>> criteria, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
     {
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
 
-        var query = await GetQueryAsync();
+            var total = await query.CountAsync(criteria, cancellationToken);
+            var pagedResult = await query
+                .Where(criteria)
+                .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+                .Take(paginationParams.PageSize)
+                .Include(includes)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
 
-        var total = await query.CountAsync(criteria, cancellationToken);
-        var pagedResult = await query
-            .Where(criteria)
-            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
-            .Take(paginationParams.PageSize)
-            .Include(includes)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
-
-        return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
-
+            return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
+        });
     }
 
     public async Task<PagedResult<T>> GetPagedAsync<T>(PaginationParams paginationParams, Expression<Func<TEntity, T>> mapping, Expression<Func<TEntity, bool>> criteria, IEnumerable<Expression<Func<TEntity, object>>>? includes = null, CancellationToken cancellationToken = default)
     {
-        var query = await GetQueryAsync();
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
 
-        var total = await query.CountAsync(criteria, cancellationToken);
-        var pagedResult = await query
-            .Where(criteria)
-            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
-            .Take(paginationParams.PageSize)
-            .Include(includes)
-            .Select(mapping)
-            .ToListAsync(cancellationToken);
+            var total = await query.CountAsync(criteria, cancellationToken);
+            var pagedResult = await query
+                .Where(criteria)
+                .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+                .Take(paginationParams.PageSize)
+                .Include(includes)
+                .Select(mapping)
+                .ToListAsync(cancellationToken);
 
-        return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
+            return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, paginationParams.PageSize, paginationParams.PageNumber));
+        });
     }
 
 
@@ -362,9 +373,12 @@ where TEntity : class, IEntity
 
     public async Task<List<TEntity>> GetListAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
     {
-        var query = await GetQueryAsync();
-        return await ApplySpecification(query, specification)
-               .ToListAsync(cancellationToken);
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
+            return await ApplySpecification(query, specification)
+                   .ToListAsync(cancellationToken);
+        });
     }
 
     public Task<List<TEntity>> GetListAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
@@ -375,9 +389,12 @@ where TEntity : class, IEntity
 
     public async Task<List<T>> GetListAsync<T>(ISpecification<TEntity, T> specification, CancellationToken cancellationToken = default)
     {
-        var query = await GetQueryAsync();
-        return await ApplySpecification(query, specification)
-               .ToListAsync(cancellationToken);
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
+            return await ApplySpecification(query, specification)
+                   .ToListAsync(cancellationToken);
+        });
     }
 
     public Task<List<T>> GetListAsync<T>(Action<ISpecificationBuilder<TEntity, T>> specBuilder, CancellationToken cancellationToken = default)
@@ -404,9 +421,12 @@ where TEntity : class, IEntity
 
     public async Task<int> CountAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
     {
-        var query = await GetQueryAsync();
-        return await ApplySpecification(query, specification, true)
-               .CountAsync(cancellationToken);
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
+            return await ApplySpecification(query, specification, true)
+                   .CountAsync(cancellationToken);
+        });
     }
 
     public async Task<TEntity?> FindAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
@@ -417,17 +437,23 @@ where TEntity : class, IEntity
 
     public async Task<TEntity?> FindAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
     {
-        var query = await GetQueryAsync();
-        return await ApplySpecification(query, specification)
-               .FirstOrDefaultAsync(cancellationToken);
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
+            return await ApplySpecification(query, specification)
+                   .FirstOrDefaultAsync(cancellationToken);
+        });
     }
 
     public async Task<IReadOnlyList<TEntity>> ReadOnlyListAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
     {
-        var query = await GetQueryAsync();
-        return await ApplySpecification(query, specification)
-               .AsNoTracking()
-               .ToListAsync(cancellationToken);
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
+            return await ApplySpecification(query, specification)
+                   .AsNoTracking()
+                   .ToListAsync(cancellationToken);
+        });
     }
 
     public async Task<IReadOnlyList<TEntity>> ReadOnlyListAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
@@ -438,10 +464,13 @@ where TEntity : class, IEntity
 
     public async Task<TEntity?> ReadOnlyAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
     {
-        var query = await GetQueryAsync();
-        return await ApplySpecification(query, specification)
-               .AsNoTracking()
-               .FirstOrDefaultAsync(cancellationToken);
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
+            return await ApplySpecification(query, specification)
+                   .AsNoTracking()
+                   .FirstOrDefaultAsync(cancellationToken);
+        });
     }
 
     public async Task<TEntity?> ReadOnlyAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
@@ -452,23 +481,29 @@ where TEntity : class, IEntity
 
     public async Task<PagedResult<T>> GetPagedAsync<T>(IPageSpecification<TEntity, T> pageSpecification, CancellationToken cancellationToken = default)
     {
-        var query = await GetQueryAsync();
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
 
-        var total = await CountAsync(pageSpecification, cancellationToken);
-        var pagedResult = await
-        ApplySpecification(query, pageSpecification)
-            .ToListAsync(cancellationToken);
+            var total = await CountAsync(pageSpecification, cancellationToken);
+            var pagedResult = await
+            ApplySpecification(query, pageSpecification)
+                .ToListAsync(cancellationToken);
 
-        return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, pageSpecification.PaginationParams.PageSize, pageSpecification.PaginationParams.PageNumber));
+            return RamshaResults.Paged(pagedResult, new RamshaPagedInfo(total, pageSpecification.PaginationParams.PageSize, pageSpecification.PaginationParams.PageNumber));
+        });
     }
 
     public async Task<IReadOnlyList<T>> ReadOnlyListAsync<T>(ISpecification<TEntity, T> specification, CancellationToken cancellationToken = default)
     where T : class
     {
-        var query = await GetQueryAsync();
-        return await ApplySpecification(query, specification)
-               .AsNoTracking()
-               .ToListAsync(cancellationToken);
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
+            return await ApplySpecification(query, specification)
+                   .AsNoTracking()
+                   .ToListAsync(cancellationToken);
+        });
     }
 
     public async Task<IReadOnlyList<T>> ReadOnlyListAsync<T>(Action<ISpecificationBuilder<TEntity, T>> specBuilder, CancellationToken cancellationToken = default)
@@ -501,9 +536,12 @@ where TEntity : class, IEntity
 
     public async Task<bool> AnyAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
     {
-        var query = await GetQueryAsync();
-        return await ApplySpecification(query, specification, true)
-            .AnyAsync(cancellationToken);
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
+            return await ApplySpecification(query, specification, true)
+                .AnyAsync(cancellationToken);
+        });
     }
 
     public async Task<bool> AnyAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
@@ -524,9 +562,12 @@ where TEntity : class, IEntity
 
     public async Task<bool> AllAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
     {
-        var query = await GetQueryAsync();
-        return await ApplySpecification(query, specification, true)
-            .AllAsync(_ => true, cancellationToken);
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
+            return await ApplySpecification(query, specification, true)
+                .AllAsync(_ => true, cancellationToken);
+        });
     }
 
     public async Task<bool> AllAsync(Action<ISpecificationBuilder<TEntity>> specBuilder, CancellationToken cancellationToken = default)
@@ -558,9 +599,12 @@ where TEntity : class, IEntity
 
     public async Task<TResult?> MaxAsync<TResult>(ISpecification<TEntity, TResult> specification, CancellationToken cancellationToken = default)
     {
-        var query = await GetQueryAsync();
-        var projected = ApplySpecification(query, specification);
-        return await projected.MaxAsync(cancellationToken);
+        return await UnitOfWork(async () =>
+        {
+            var query = await GetQueryAsync();
+            var projected = ApplySpecification(query, specification);
+            return await projected.MaxAsync(cancellationToken);
+        });
 
     }
 
